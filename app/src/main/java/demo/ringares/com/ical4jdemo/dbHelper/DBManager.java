@@ -1,10 +1,13 @@
 package demo.ringares.com.ical4jdemo.dbHelper;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import demo.ringares.com.ical4jdemo.bean.EventDataBean;
 
 /**
  * Created by ls
@@ -16,6 +19,29 @@ public class DBManager {
     /***************************************************************
      * 表定义
      ***************************************************************/
+
+    /**
+     * 表名:connection  用户绑定第三方账号的连接信息
+     */
+    static class Connection {
+        public static final String TableName = "connection";
+        public static final String KEY_connection_id = "connection_id";//主键 本地id
+        public static final String KEY_connection_sid = "connection_sid";// 服务器id
+        public static final String KEY_connection_type = "connection_type";// 绑定类型,例如google、iCloud、facebook、local
+        public static final String KEY_connection_status = "connection_status";// 绑定状态(0绑定失效,1绑定正常)
+        public static final String KEY_connection_userinfo = "connection_userinfo";// 绑定的用户信息 JSON String
+        public static final String[] columns = new String[]{
+                KEY_connection_id, KEY_connection_sid, KEY_connection_type,
+                KEY_connection_status, KEY_connection_userinfo};
+        public static final String Create_table = "create table if not exists " +
+                TableName + " (" +
+                KEY_connection_id + " integer primary key autoincrement, " +
+                KEY_connection_sid + " long not null, " +//todo
+                KEY_connection_type + " integer not null," + //todo
+                KEY_connection_status + " integer not null," +
+                KEY_connection_userinfo + " text not null" +
+                ");";
+    }
 
     /**
      * 表名:calendar  对应之前数据的分组
@@ -51,29 +77,6 @@ public class DBManager {
                 KEY_calendar_remind + " integer not null," +
                 KEY_calendar_access + " integer not null," + //todo
                 KEY_calendar_other_info + " text not null" +
-                ");";
-    }
-
-    /**
-     * 表名:connection  用户绑定第三方账号的连接信息
-     */
-    static class Connection {
-        public static final String TableName = "connection";
-        public static final String KEY_connection_id = "connection_id";//主键 本地id
-        public static final String KEY_connection_sid = "connection_sid";// 服务器id
-        public static final String KEY_connection_type = "connection_type";// 绑定类型,例如google、iCloud、facebook、local
-        public static final String KEY_connection_status = "connection_status";// 绑定状态(0绑定失效,1绑定正常)
-        public static final String KEY_connection_userinfo = "connection_userinfo";// 绑定的用户信息 JSON String
-        public static final String[] columns = new String[]{
-                KEY_connection_id, KEY_connection_sid, KEY_connection_type,
-                KEY_connection_status, KEY_connection_userinfo};
-        public static final String Create_table = "create table if not exists " +
-                TableName + " (" +
-                KEY_connection_id + " integer primary key autoincrement, " +
-                KEY_connection_sid + " long not null, " +//todo
-                KEY_connection_type + " integer not null," + //todo
-                KEY_connection_status + " integer not null," +
-                KEY_connection_userinfo + " text not null" +
                 ");";
     }
 
@@ -256,9 +259,11 @@ public class DBManager {
     }
 
 
-    /***************************************************************
+    /**
+     * ************************************************************
      * 数据库操作
-     ***************************************************************/
+     * *************************************************************
+     */
 
     private static DatabaseHelper mDbHelper = null;
     private static SQLiteDatabase mDb = null;
@@ -308,13 +313,40 @@ public class DBManager {
         return dBManagerInstance;
     }
 
-    public void testSQL(){
-        Log.e("==>",Calendar.Create_table);
-        Log.e("==>",Connection.Create_table);
-        Log.e("==>",Event.Create_table);
-        Log.e("==>",Recurrence.Create_table);
-        Log.e("==>",Location.Create_table);
-        Log.e("==>",Person.Create_table);
+    public void testSQL() {
+        Log.e("==>", Calendar.Create_table);
+        Log.e("==>", Connection.Create_table);
+        Log.e("==>", Event.Create_table);
+        Log.e("==>", Recurrence.Create_table);
+        Log.e("==>", Location.Create_table);
+        Log.e("==>", Person.Create_table);
+    }
+
+    public long insertDataIntoEvent(EventDataBean bean) {
+        ContentValues cv = new ContentValues();
+        cv.put(Event.KEY_event_id, bean.event_id);
+        cv.put(Event.KEY_event_is_syn, bean.event_is_syn);
+        cv.put(Event.KEY_event_flag, bean.event_flag);
+        cv.put(Event.KEY_event_ts, bean.event_ts);
+        cv.put(Event.KEY_event_sid, bean.event_sid);
+        cv.put(Event.KEY_event_calendar_id, bean.event_calendar_id);
+        cv.put(Event.KEY_event_uuid, bean.event_uuid);
+        cv.put(Event.KEY_event_title, bean.event_title);
+        cv.put(Event.KEY_event_note, bean.event_note);
+        cv.put(Event.KEY_event_start_date, bean.event_start_date);
+        cv.put(Event.KEY_event_end_date, bean.event_end_date);
+        cv.put(Event.KEY_event_is_allday, bean.event_is_allday);
+        cv.put(Event.KEY_event_rrule, bean.event_rrule);
+        cv.put(Event.KEY_event_rdate, bean.event_rdate);
+        cv.put(Event.KEY_event_advance, bean.event_advance);
+        cv.put(Event.KEY_event_url, bean.event_url);
+        cv.put(Event.KEY_event_editable, bean.event_editable);
+        cv.put(Event.KEY_event_create_ts, bean.event_create_ts);
+        cv.put(Event.KEY_event_update_ts, bean.event_update_ts);
+        cv.put(Event.KEY_event_status, bean.event_status);
+        cv.put(Event.KEY_event_iCal, bean.event_iCal);
+
+        return mDb.insert(Event.TableName, null, cv);
     }
 
 

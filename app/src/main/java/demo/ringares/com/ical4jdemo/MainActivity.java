@@ -67,10 +67,26 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import demo.ringares.com.ical4jdemo.bean.EventModel;
 import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    final static String ICAL_DATA = "BEGIN:VCALENDAR\n" +
+            "PRODID:-//Ben Fortuna//iCal4j 1.0//EN\n" +
+            "VERSION:2.0\n" +
+            "CALSCALE:GREGORIAN\n" +
+            "BEGIN:VEVENT\n" +
+            "DTSTAMP:20150723T092650Z\n" +
+            "DTSTART:20150806T080000\n" +
+            "DTEND:20150806T090000\n" +
+            "SUMMARY:RRuleEvent\n" +
+            "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
+            "RRULE:FREQ=WEEKLY;COUNT=4;INTERVAL=2\n" +
+            "END:VEVENT\n" +
+            "END:VCALENDAR";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +94,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
 
-        /**iCal4j生成uid需要联网获取主机地址,需要开子线程
+        /**测试
+         * iCal4j生成uid需要联网获取主机地址,需要开子线程
          * 可以考虑别的方式...未定*/
         new Thread() {
             @Override
@@ -103,26 +120,40 @@ public class MainActivity extends ActionBarActivity {
             }
         }.start();
 
+
+        /**解析*/
+        net.fortuna.ical4j.model.Calendar calendar = null;
+        try {
+            calendar = parseCalerdar(ICAL_DATA);
+            //获取vEvent
+            VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
+            EventModel eventModel = new EventModel(vEvent);
+
+
+
+
+
+
+
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParserException e) {
+            e.printStackTrace();
+        }
+
+
+
+        /**数据库测试*/
         DBManager open = DBManager.open(this);
         open.testSQL();
+
     }
 
     private void updateCalendar() throws IOException, ParserException {
-        String data = "BEGIN:VCALENDAR\n" +
-                "PRODID:-//Ben Fortuna//iCal4j 1.0//EN\n" +
-                "VERSION:2.0\n" +
-                "CALSCALE:GREGORIAN\n" +
-                "BEGIN:VEVENT\n" +
-                "DTSTAMP:20150723T092650Z\n" +
-                "DTSTART:20150806T080000\n" +
-                "DTEND:20150806T090000\n" +
-                "SUMMARY:RRuleEvent\n" +
-                "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
-                "RRULE:FREQ=WEEKLY;COUNT=4;INTERVAL=2\n" +
-                "END:VEVENT\n" +
-                "END:VCALENDAR";
-
-        net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(data);
+        net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(ICAL_DATA);
         VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
         calendar.getComponents().add(vEvent);
 
@@ -135,21 +166,8 @@ public class MainActivity extends ActionBarActivity {
      * @throws ParserException
      */
     private void parseRRule() throws IOException, ParserException {
-        String data = "BEGIN:VCALENDAR\n" +
-                "PRODID:-//Ben Fortuna//iCal4j 1.0//EN\n" +
-                "VERSION:2.0\n" +
-                "CALSCALE:GREGORIAN\n" +
-                "BEGIN:VEVENT\n" +
-                "DTSTAMP:20150723T092650Z\n" +
-                "DTSTART:20150806T080000\n" +
-                "DTEND:20150806T101010\n" +
-                "SUMMARY:RRuleEvent\n" +
-                "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
-                "RRULE:FREQ=WEEKLY;COUNT=4;INTERVAL=2\n" +
-                "END:VEVENT\n" +
-                "END:VCALENDAR";
 
-        net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(data);
+        net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(ICAL_DATA);
         //获取vEvent
         VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
         String uid = vEvent.getUid().getValue();
