@@ -78,6 +78,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
 
+        /**iCal4j生成uid需要联网获取主机地址,需要开子线程
+         * 可以考虑别的方式...未定*/
         new Thread() {
             @Override
             public void run() {
