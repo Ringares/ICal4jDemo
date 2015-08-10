@@ -6,10 +6,10 @@ package demo.ringares.com.ical4jdemo.bean;
  * Description
  */
 public class ConnectionDataBean {
-    public String connection_id = "connection_id";//主键 本地id
-    public String connection_sid = "connection_sid";// 服务器id
-    public String connection_type = "connection_type";// 绑定类型,例如google、iCloud、facebook、local
-    public String connection_status = "connection_status";// 绑定状态(0绑定失效,1绑定正常)
-    public String connection_userinfo = "connection_userinfo";// 绑定的用户信息 JSON String
+    public int connection_id ;//主键 本地id
+    public long connection_sid ;// 服务器id
+    public int connection_type ;// 绑定类型,例如google、iCloud、facebook、local
+    public int connection_status ;// 绑定状态(0绑定失效,1绑定正常)
+    public String connection_userinfo ;// 绑定的用户信息 JSON String
 
 }

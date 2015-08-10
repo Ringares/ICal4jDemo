@@ -127,7 +127,7 @@ public class MainActivity extends ActionBarActivity {
             calendar = parseCalerdar(ICAL_DATA);
             //获取vEvent
             VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
-            EventModel eventModel = new EventModel(vEvent);
+            EventModel eventModel = new EventModel(vEvent, this.getApplicationContext());
 
 
 

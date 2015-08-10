@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import demo.ringares.com.ical4jdemo.bean.EventDataBean;
+import demo.ringares.com.ical4jdemo.bean.LocationDataBean;
+import demo.ringares.com.ical4jdemo.bean.PersonDataBean;
+import demo.ringares.com.ical4jdemo.bean.RecurrenceDataBean;
 
 /**
  * Created by ls
@@ -324,7 +327,6 @@ public class DBManager {
 
     public long insertDataIntoEvent(EventDataBean bean) {
         ContentValues cv = new ContentValues();
-        cv.put(Event.KEY_event_id, bean.event_id);
         cv.put(Event.KEY_event_is_syn, bean.event_is_syn);
         cv.put(Event.KEY_event_flag, bean.event_flag);
         cv.put(Event.KEY_event_ts, bean.event_ts);
@@ -347,6 +349,56 @@ public class DBManager {
         cv.put(Event.KEY_event_iCal, bean.event_iCal);
 
         return mDb.insert(Event.TableName, null, cv);
+    }
+
+    public long insertDataIntoRecurrence(RecurrenceDataBean bean) {
+        ContentValues cv = new ContentValues();
+        cv.put(Recurrence.KEY_recurrence_event_id, bean.recurrence_event_id);
+        cv.put(Recurrence.KEY_recurrence_frequency_type, bean.recurrence_frequency_type);
+        cv.put(Recurrence.KEY_recurrence_interval, bean.recurrence_interval);
+        cv.put(Recurrence.KEY_recurrence_end_type, bean.recurrence_end_type);
+        cv.put(Recurrence.KEY_recurrence_end_date, bean.recurrence_end_date);
+        cv.put(Recurrence.KEY_recurrence_end_count, bean.recurrence_end_count);
+        cv.put(Recurrence.KEY_recurrence_by_monthday, bean.recurrence_by_monthday);
+        cv.put(Recurrence.KEY_recurrence_by_month, bean.recurrence_by_month);
+        cv.put(Recurrence.KEY_recurrence_by_weekno, bean.recurrence_by_weekno);
+        cv.put(Recurrence.KEY_recurrence_by_yearday, bean.recurrence_by_yearday);
+        cv.put(Recurrence.KEY_recurrence_by_day, bean.recurrence_by_day);
+        cv.put(Recurrence.KEY_recurrence_positions, bean.recurrence_positions);
+        cv.put(Recurrence.KEY_recurrence_week_start, bean.recurrence_week_start);
+        cv.put(Recurrence.KEY_recurrence_start_date, bean.recurrence_start_date);
+        cv.put(Recurrence.KEY_recurrence_syear, bean.recurrence_syear);
+        cv.put(Recurrence.KEY_recurrence_smonth, bean.recurrence_smonth);
+        cv.put(Recurrence.KEY_recurrence_sday, bean.recurrence_start_date);
+
+        return mDb.insert(Recurrence.TableName, null, cv);
+    }
+
+    public long insertDataIntoLocation(LocationDataBean bean) {
+        ContentValues cv = new ContentValues();
+        cv.put(Location.KEY_location_event_id, bean.location_event_id);
+        cv.put(Location.KEY_location_lat, bean.location_lat);
+        cv.put(Location.KEY_location_city, bean.location_city);
+        cv.put(Location.KEY_location_country, bean.location_country);
+        cv.put(Location.KEY_location_desc, bean.location_desc);
+
+        return mDb.insert(Location.TableName, null, cv);
+    }
+
+    public long insertDataIntoPerson(PersonDataBean bean) {
+        ContentValues cv = new ContentValues();
+        cv.put(Person.KEY_person_event_id, bean.person_event_id);
+        cv.put(Person.KEY_person_type, bean.person_type);
+        cv.put(Person.KEY_person_display_name, bean.person_display_name);
+        cv.put(Person.KEY_person_first_name, bean.person_first_name);
+        cv.put(Person.KEY_person_last_name, bean.person_last_name);
+        cv.put(Person.KEY_person_Email, bean.person_Email);
+        cv.put(Person.KEY_person_phone, bean.person_phone);
+        cv.put(Person.KEY_person_is_self, bean.person_is_self);
+        cv.put(Person.KEY_person_avatar_url, bean.person_avatar_url);
+        cv.put(Person.KEY_person_other_info, bean.person_other_info);
+
+        return mDb.insert(Person.TableName, null, cv);
     }
 
 

@@ -1,11 +1,15 @@
 package demo.ringares.com.ical4jdemo.bean;
 
+import android.content.Context;
+
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.Location;
 import net.fortuna.ical4j.model.property.RRule;
+
+import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
 
 /**
  * Created by ls
@@ -24,6 +28,7 @@ import net.fortuna.ical4j.model.property.RRule;
 
  */
 public class EventModel {
+    private Context ctx;
     /**需要处理的iCal协议定义字段*/
     public String eventData; //vEvent原文
     public String uid; //UID
@@ -38,11 +43,11 @@ public class EventModel {
     public String content; //DESCRIPTION
     public Location location; //LOCATION
     public Attendee attendee; //ATTENDEE
+
+
     public RRule rrule; //RRULE
-
-
     /**自定义的所需字段*/
-    public boolean isSyn; //是否需要同步
+    public int isSyn; //是否需要同步
     public long sid; //同步服务器id
     public long synTime; //同步时间戳
     public String eventFlag; //数据操作类型A:add,E:edit,D:delete
@@ -50,7 +55,9 @@ public class EventModel {
     //todo 还有
 
 
-    public EventModel(VEvent vEvent) {
+    public EventModel(VEvent vEvent, Context ctx) {
+        this.ctx =ctx;
+
         this.eventData = vEvent.toString();
         this.uid = vEvent.getUid().getValue();
         this.createTime = vEvent.getCreated().getDate().getTime();
@@ -70,10 +77,28 @@ public class EventModel {
     }
 
     /**
-     *添加事件在本地
+     *添加事件到本地
      * @return
      */
     public boolean insertEventInLocal(){
+        DBManager open = DBManager.open(ctx);
+
+        /**插入Event表*/
+        EventDataBean dataBean = new EventDataBean();
+        //dataBean.event_id
+        dataBean.event_is_syn = this.isSyn;
+        dataBean.event_flag = this.eventFlag;
+        //todo...
+
+
+        //open.insertDataIntoEvent(dataBean);
+
+        /**插入Recurrence表*/
+
+        /**插入Person表*/
+
+        /**插入Location表*/
+
 
         return false;
     }
