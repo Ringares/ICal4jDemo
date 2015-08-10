@@ -369,7 +369,7 @@ public class DBManager {
         cv.put(Recurrence.KEY_recurrence_start_date, bean.recurrence_start_date);
         cv.put(Recurrence.KEY_recurrence_syear, bean.recurrence_syear);
         cv.put(Recurrence.KEY_recurrence_smonth, bean.recurrence_smonth);
-        cv.put(Recurrence.KEY_recurrence_sday, bean.recurrence_start_date);
+        cv.put(Recurrence.KEY_recurrence_sday, bean.recurrence_sday);
 
         return mDb.insert(Recurrence.TableName, null, cv);
     }

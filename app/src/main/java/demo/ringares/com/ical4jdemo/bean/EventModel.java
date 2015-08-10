@@ -6,8 +6,16 @@ import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.Attendee;
+import net.fortuna.ical4j.model.property.Created;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.DtEnd;
+import net.fortuna.ical4j.model.property.DtStamp;
+import net.fortuna.ical4j.model.property.DtStart;
+import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.Location;
 import net.fortuna.ical4j.model.property.RRule;
+import net.fortuna.ical4j.model.property.Status;
+import net.fortuna.ical4j.model.property.Summary;
 
 import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
 
@@ -60,15 +68,38 @@ public class EventModel {
 
         this.eventData = vEvent.toString();
         this.uid = vEvent.getUid().getValue();
-        this.createTime = vEvent.getCreated().getDate().getTime();
-        this.updateTime = vEvent.getDateStamp().getDateTime().getTime();
-        this.startTime = vEvent.getStartDate().getDate().getTime();
-        this.endTime = vEvent.getEndDate().getDate().getTime();
-        this.duration = vEvent.getDuration().getDuration();
-        this.status = vEvent.getStatus().getValue();
-
-        this.title = vEvent.getSummary().getValue();
-        this.content =vEvent.getDescription().getValue();
+        Created created = vEvent.getCreated();
+        if (created!=null){
+            this.createTime = created.getDate().getTime();
+        }
+        DtStamp dateStamp = vEvent.getDateStamp();
+        if (dateStamp != null) {
+            this.updateTime = dateStamp.getDateTime().getTime();
+        }
+        DtStart startDate = vEvent.getStartDate();
+        if (startDate != null) {
+            this.startTime = startDate.getDate().getTime();
+        }
+        DtEnd endDate = vEvent.getEndDate();
+        if (endDate != null) {
+            this.endTime = endDate.getDate().getTime();
+        }
+        Duration duration = vEvent.getDuration();
+        if (duration != null) {
+            this.duration = duration.getDuration();
+        }
+        Status status = vEvent.getStatus();
+        if (status != null) {
+            this.status = status.getValue();
+        }
+        Summary summary = vEvent.getSummary();
+        if (summary != null) {
+            this.title = summary.getValue();
+        }
+        Description description = vEvent.getDescription();
+        if (description != null) {
+            this.content = description.getValue();
+        }
 
         this.location = vEvent.getLocation();
         this.attendee = (Attendee)vEvent.getProperty(Property.ATTENDEE);
@@ -84,14 +115,6 @@ public class EventModel {
         DBManager open = DBManager.open(ctx);
 
         /**插入Event表*/
-        EventDataBean dataBean = new EventDataBean();
-        //dataBean.event_id
-        dataBean.event_is_syn = this.isSyn;
-        dataBean.event_flag = this.eventFlag;
-        //todo...
-
-
-        //open.insertDataIntoEvent(dataBean);
 
         /**插入Recurrence表*/
 

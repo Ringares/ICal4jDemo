@@ -129,7 +129,7 @@ public class MainActivity extends ActionBarActivity {
             VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
             EventModel eventModel = new EventModel(vEvent, this.getApplicationContext());
 
-
+            eventModel.insertEventInLocal();
 
 
 

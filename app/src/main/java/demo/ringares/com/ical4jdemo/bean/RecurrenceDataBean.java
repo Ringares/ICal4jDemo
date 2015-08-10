@@ -1,5 +1,7 @@
 package demo.ringares.com.ical4jdemo.bean;
 
+import net.fortuna.ical4j.model.property.RRule;
+
 /**
  * Created by ls
  * on 2015/8/10
@@ -25,4 +27,10 @@ public class RecurrenceDataBean {
     public int recurrence_smonth;// event 开始日期月
     public int recurrence_sday;// event 开始日期日
 
+    public RecurrenceDataBean(RRule rRule, long startDate) {
+
+    }
+    public RecurrenceDataBean(){
+
+    }
 }
