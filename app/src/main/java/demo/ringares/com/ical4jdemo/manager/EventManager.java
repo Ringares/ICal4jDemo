@@ -121,6 +121,10 @@ public class EventManager {
         recurrenceDataBean = createRecurrenceDataBean();
     }
 
+    private EventDataBean createEventDataBean() {
+        return null;
+    }
+
     private RecurrenceDataBean createRecurrenceDataBean() {
         RecurrenceDataBean dataBean = new RecurrenceDataBean(rrule, startTime);
         return dataBean;
@@ -131,10 +135,6 @@ public class EventManager {
     }
 
     private LocationDataBean createLocationDataBean() {
-        return null;
-    }
-
-    private EventDataBean createEventDataBean() {
         return null;
     }
 

@@ -115,6 +115,18 @@ public class MainActivity extends ActionBarActivity {
             "END:VEVENT\n" +
             "END:VCALENDAR";
 
+    final static String ICAL_DATA4 = "BEGIN:VCALENDAR\n" +
+            "PRODID:-//Ben Fortuna//iCal4j 1.0//EN\n" +
+            "VERSION:2.0\n" +
+            "CALSCALE:GREGORIAN\n" +
+            "BEGIN:VEVENT\n" +
+            "DTSTAMP:20050222T044240Z\n" +
+            "DTSTART;VALUE=DATE:20051225\n" +
+            "SUMMARY:Christmas Day\n" +
+            "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
+            "END:VEVENT\n" +
+            "END:VCALENDAR";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +171,7 @@ public class MainActivity extends ActionBarActivity {
         /**解析*/
 
         try {
-            net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(ICAL_DATA2);
+            net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(ICAL_DATA4);
             //获取vEvent
             VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
             EventManager eventModel = new EventManager(vEvent, this.getApplicationContext());
