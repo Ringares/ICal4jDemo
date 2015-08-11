@@ -119,7 +119,7 @@ public class DBManager {
                 TableName + " (" +
                 KEY_event_id + " integer primary key autoincrement, " +
                 KEY_event_is_syn + " integer not null, " +
-                KEY_event_flag + " text not null," +
+                KEY_event_flag + " int not null," +
                 KEY_event_ts + " long not null," +
                 KEY_event_sid + " long not null," +
                 KEY_event_calendar_id + " integer not null," +

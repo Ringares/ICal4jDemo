@@ -3,10 +3,12 @@ package demo.ringares.com.ical4jdemo.bean;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.NumberList;
 import net.fortuna.ical4j.model.Recur;
+import net.fortuna.ical4j.model.WeekDay;
 import net.fortuna.ical4j.model.WeekDayList;
 import net.fortuna.ical4j.model.property.RRule;
 
 import java.util.Calendar;
+import java.util.Iterator;
 
 /**
  * Created by ls
@@ -32,14 +34,14 @@ public class RecurrenceDataBean {
     /**
      * WEEKSTARTDAY
      */
-    static final int WKST_NONE =0;
-    static final int WKST_SUN =1;
-    static final int WKST_MON =2;
-    static final int WKST_TUE =3;
-    static final int WKST_WED =4;
-    static final int WKST_THU =5;
-    static final int WKST_FRI =6;
-    static final int WKST_SAT =7;
+    static final int WKST_NONE = 0;
+    static final int WKST_SUN = 1;
+    static final int WKST_MON = 2;
+    static final int WKST_TUE = 3;
+    static final int WKST_WED = 4;
+    static final int WKST_THU = 5;
+    static final int WKST_FRI = 6;
+    static final int WKST_SAT = 7;
 
 
     private Recur recur;
@@ -96,7 +98,7 @@ public class RecurrenceDataBean {
         calendar.setTimeInMillis(startDate);
         this.recurrence_syear = calendar.get(Calendar.YEAR);
         this.recurrence_smonth = calendar.get(Calendar.MONTH);
-        this.recurrence_sday = calendar.get(Calendar.DAY_OF_MONTH)+1; //1-12month
+        this.recurrence_sday = calendar.get(Calendar.DAY_OF_MONTH) + 1; //1-12month
         this.recurrence_rule = recur.toString();
 
     }
@@ -172,7 +174,27 @@ public class RecurrenceDataBean {
     private String getByDay() {
         WeekDayList dayList = recur.getDayList();
         if (dayList != null && dayList.size() > 0) {
-            return dayList.toString();
+            StringBuilder sb = new StringBuilder();
+
+            for (Iterator i = dayList.iterator(); i.hasNext();) {
+                WeekDay temp = ((WeekDay) i.next());
+                int prefix = temp.getOffset();
+                int weekDay = convertWeekDayString2Int(temp.getDay());
+
+                int value;
+                if (prefix<0) {
+                    value = prefix*8-weekDay;
+                }else{
+                    value = prefix*8+weekDay;
+                }
+                sb.append(String.valueOf(value));
+                if (i.hasNext()){
+                    sb.append(",");
+                }
+            }
+            return sb.toString();
+
+
         } else {
             return null;
         }
@@ -180,30 +202,34 @@ public class RecurrenceDataBean {
 
     private String getPosList() {
         NumberList posList = recur.getSetPosList();
-        if (posList!=null && posList.size()>0){
+        if (posList != null && posList.size() > 0) {
             return posList.toString();
-        }else{
+        } else {
             return null;
         }
     }
 
     private int getWeekStartDay() {
         String weekStartDay = recur.getWeekStartDay();
-        if ("SU".equals(weekStartDay)){
+        return convertWeekDayString2Int(weekStartDay);
+    }
+
+    private int convertWeekDayString2Int(String weekStartDay) {
+        if ("SU".equals(weekStartDay)) {
             return WKST_SUN;
-        }else if ("MO".equals(weekStartDay)){
+        } else if ("MO".equals(weekStartDay)) {
             return WKST_MON;
-        }else if ("TU".equals(weekStartDay)){
+        } else if ("TU".equals(weekStartDay)) {
             return WKST_TUE;
-        }else if ("WE".equals(weekStartDay)){
+        } else if ("WE".equals(weekStartDay)) {
             return WKST_WED;
-        }else if ("TH".equals(weekStartDay)){
+        } else if ("TH".equals(weekStartDay)) {
             return WKST_THU;
-        }else if ("FR".equals(weekStartDay)){
+        } else if ("FR".equals(weekStartDay)) {
             return WKST_FRI;
-        }else if ("SA".equals(weekStartDay)){
+        } else if ("SA".equals(weekStartDay)) {
             return WKST_SAT;
-        }else{
+        } else {
             return WKST_NONE;
         }
     }

@@ -6,14 +6,14 @@ package demo.ringares.com.ical4jdemo.bean;
  * Description
  */
 public class EventDataBean {
-    public static final String EVENT_FLAG_ADD = "A";
-    public static final String EVENT_FLAG_EDIT = "E";
-    public static final String EVENT_FLAG_DELETE = "D";
+    public static final int EVENT_FLAG_ADD = 5;
+    public static final int EVENT_FLAG_EDIT = 6;
+    public static final int EVENT_FLAG_DELETE = 7;
 
 
     public String event_id;//主键 本地id
     public int event_is_syn;// 是否需要同步
-    public String event_flag;// 数据操作类型A:add,E:edit,D:delete
+    public int event_flag;// 数据操作类型 5:add,6:edit,7:delete
     public long event_ts;// 同步的时间戳 服务器返回的
     public long event_sid;// 服务器id
     public int event_calendar_id;// calendar id,对应calenadr 表的local id
