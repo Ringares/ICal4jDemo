@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 
@@ -68,7 +69,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import demo.ringares.com.ical4jdemo.manager.EventManager;
-import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -121,6 +121,13 @@ public class MainActivity extends ActionBarActivity {
         }.start();
 
 
+        /**数据库测试*/
+//        DBManager open = DBManager.open(this);
+//        open.testSQL();
+
+    }
+
+    public void add(View view) {
         /**解析*/
 
         try {
@@ -132,24 +139,11 @@ public class MainActivity extends ActionBarActivity {
             eventModel.insertEventInLocal();
 
 
-
-
-
-
-
-
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParserException e) {
             e.printStackTrace();
         }
-
-
-
-        /**数据库测试*/
-        DBManager open = DBManager.open(this);
-        open.testSQL();
-
     }
 
     private void updateCalendar() throws IOException, ParserException {
@@ -215,7 +209,7 @@ public class MainActivity extends ActionBarActivity {
          * 返回List<vEvent>
          * ************************************************************************************/
         Calendar today = Calendar.getInstance();
-        today.set(Calendar.DAY_OF_MONTH,7);
+        today.set(Calendar.DAY_OF_MONTH, 7);
         today.set(Calendar.HOUR_OF_DAY, 0);
         today.clear(java.util.Calendar.MINUTE);
         today.clear(java.util.Calendar.SECOND);

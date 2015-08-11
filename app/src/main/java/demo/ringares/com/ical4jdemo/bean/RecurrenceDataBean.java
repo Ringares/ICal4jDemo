@@ -66,7 +66,7 @@ public class RecurrenceDataBean {
     }
 
     public RecurrenceDataBean(RRule rRule, long startDate) {
-        new RecurrenceDataBean(-1, rRule, startDate);
+        this(-1, rRule, startDate);
     }
 
     public RecurrenceDataBean(int eventId, RRule rRule, long startDate) {

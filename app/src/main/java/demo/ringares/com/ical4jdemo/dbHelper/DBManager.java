@@ -112,8 +112,8 @@ public class DBManager {
                 KEY_event_ts, KEY_event_sid, KEY_event_calendar_id,
                 KEY_event_uuid, KEY_event_title, KEY_event_note,
                 KEY_event_start_date, KEY_event_end_date, KEY_event_is_allday,
-                KEY_event_advance,KEY_event_url, KEY_event_editable,
-                KEY_event_create_ts,                KEY_event_update_ts, KEY_event_status,
+                KEY_event_advance, KEY_event_url, KEY_event_editable,
+                KEY_event_create_ts, KEY_event_update_ts, KEY_event_status,
                 KEY_event_iCal};
         public static final String Create_table = "create table if not exists " +
                 TableName + " (" +
@@ -313,6 +313,24 @@ public class DBManager {
             mDb = mDbHelper.getWritableDatabase();
         }
         return dBManagerInstance;
+    }
+
+    public void beginTransaction() {
+        mDb.beginTransaction();
+    }
+
+    public void setTransactionSuccessful() {
+        mDb.setTransactionSuccessful();
+    }
+
+    public void endTransaction() {
+        mDb.endTransaction();
+    }
+
+    public void close() {
+        mDb.close();
+        mDbHelper.close();
+        dBManagerInstance = null;
     }
 
     public void testSQL() {

@@ -1,6 +1,7 @@
 package demo.ringares.com.ical4jdemo.manager;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
@@ -27,21 +28,22 @@ import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
  * Created by ls
  * on 2015/8/10
  * Description
- *
- *
- "BEGIN:VEVENT\n" +
- "DTSTAMP:20150723T092650Z\n" +
- "DTSTART:20150806T080000\n" +
- "DTEND:20150806T090000\n" +
- "SUMMARY:RRuleEvent\n" +
- "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
- "RRULE:FREQ=WEEKLY;COUNT=4;INTERVAL=2\n" +
- "END:VEVENT\n"
-
+ * <p/>
+ * <p/>
+ * "BEGIN:VEVENT\n" +
+ * "DTSTAMP:20150723T092650Z\n" +
+ * "DTSTART:20150806T080000\n" +
+ * "DTEND:20150806T090000\n" +
+ * "SUMMARY:RRuleEvent\n" +
+ * "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
+ * "RRULE:FREQ=WEEKLY;COUNT=4;INTERVAL=2\n" +
+ * "END:VEVENT\n"
  */
 public class EventManager {
     private Context ctx;
-    /**需要处理的iCal协议定义字段*/
+    /**
+     * 需要处理的iCal协议定义字段
+     */
     public String eventData; //vEvent原文
     public String uid; //UID
     public long createTime; //
@@ -58,7 +60,9 @@ public class EventManager {
 
 
     public RRule rrule; //RRULE
-    /**自定义的所需字段*/
+    /**
+     * 自定义的所需字段
+     */
     public int isSyn; //是否需要同步
     public long sid; //同步服务器id
     public long synTime; //同步时间戳
@@ -67,20 +71,25 @@ public class EventManager {
     //todo 还有
 
 
-    /**4个相关的DataBean*/
-    private final EventDataBean eventDataBean;
-    private final LocationDataBean locationDataBean;
-    private final PersonDataBean personDataBean;
-    private final RecurrenceDataBean recurrenceDataBean;
+    /**
+     * 4个相关的DataBean
+     */
+    public EventDataBean eventDataBean;
+    public LocationDataBean locationDataBean;
+    public PersonDataBean personDataBean;
+    public RecurrenceDataBean recurrenceDataBean;
 
 
     public EventManager(VEvent vEvent, Context ctx) {
-        this.ctx =ctx;
+        this.ctx = ctx;
+        initData(vEvent);
+    }
 
+    private void initData(VEvent vEvent) {
         this.eventData = vEvent.toString();
         this.uid = vEvent.getUid().getValue();
         Created created = vEvent.getCreated();
-        if (created!=null){
+        if (created != null) {
             this.createTime = created.getDate().getTime();
         }
         DtStamp dateStamp = vEvent.getDateStamp();
@@ -113,7 +122,7 @@ public class EventManager {
         }
 
         this.location = vEvent.getLocation();
-        this.attendee = (Attendee)vEvent.getProperty(Property.ATTENDEE);
+        this.attendee = (Attendee) vEvent.getProperty(Property.ATTENDEE);
         this.rrule = (RRule) vEvent.getProperty(Property.RRULE);
 
         eventDataBean = createEventDataBean();
@@ -140,47 +149,65 @@ public class EventManager {
     }
 
     /**
-     *添加事件到本地
+     * 添加事件到本地
+     *
      * @return
      */
-    public boolean insertEventInLocal(){
-        DBManager open = DBManager.open(ctx);
-        /*todo 考虑加上事物操作**/
+    public boolean insertEventInLocal() {
+        DBManager db = DBManager.open(ctx);
+        /**事务操作*/
+        db.beginTransaction();
+        try {
 
-        /**插入Event表*/
+            /**插入Event表*/
 
-        /**插入Recurrence表*/
+            /**插入Recurrence表*/
+            long pos = db.insertDataIntoRecurrence(recurrenceDataBean);
+            Log.e("-->", "插入Recurrence表 返回位置:" + pos);
 
-        /**插入Person表*/
+            /**插入Person表*/
 
-        /**插入Location表*/
+            /**插入Location表*/
+
+
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            db.endTransaction();
+            throw e;
+        }
+        db.endTransaction();
+        db.close();
+
 
         return false;
     }
 
     /**
      * 修改事件在本地
+     *
      * @return
      */
-    public boolean updateEventInLocal(){
+    public boolean updateEventInLocal() {
 
         return false;
     }
 
     /**
      * 删除事件在本地
+     *
      * @return
      */
-    public boolean deleteEventInLocal(){
+    public boolean deleteEventInLocal() {
 
         return false;
     }
 
     /**
      * 将此事件与远端同步
+     *
      * @return
      */
-    public boolean synEventWithRemote(){
+    public boolean synEventWithRemote() {
 
         return false;
     }
