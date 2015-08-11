@@ -67,7 +67,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import demo.ringares.com.ical4jdemo.bean.EventManager;
+import demo.ringares.com.ical4jdemo.manager.EventManager;
 import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
 
 

@@ -100,8 +100,6 @@ public class DBManager {
         public static final String KEY_event_start_date = "event_start_date";// 活动开始时间戳 毫秒
         public static final String KEY_event_end_date = "event_end_date";// 活动结束时间戳
         public static final String KEY_event_is_allday = "event_is_allday";// 活动是否是全天(0不是,1是)
-        public static final String KEY_event_rrule = "event_rrule";// 重复方式表达式,空表示不重复，用的时候需要解析
-        public static final String KEY_event_rdate = "event_rdate";// 事件的循环日期。通常可以和RRULE一起使用来定义一个重复发生的总集合。
         public static final String KEY_event_advance = "event_advance";// 提前提醒时间，单位是分钟。以,为间隔支持多个例如0,5,60,120
         public static final String KEY_event_url = "event_url";// 活动链接url
         public static final String KEY_event_editable = "event_editable";// 活动是否可以编辑，(0不可以,1可以)
@@ -114,9 +112,9 @@ public class DBManager {
                 KEY_event_ts, KEY_event_sid, KEY_event_calendar_id,
                 KEY_event_uuid, KEY_event_title, KEY_event_note,
                 KEY_event_start_date, KEY_event_end_date, KEY_event_is_allday,
-                KEY_event_rrule, KEY_event_rdate, KEY_event_advance,
-                KEY_event_url, KEY_event_editable, KEY_event_create_ts,
-                KEY_event_update_ts, KEY_event_status, KEY_event_iCal};
+                KEY_event_advance,KEY_event_url, KEY_event_editable,
+                KEY_event_create_ts,                KEY_event_update_ts, KEY_event_status,
+                KEY_event_iCal};
         public static final String Create_table = "create table if not exists " +
                 TableName + " (" +
                 KEY_event_id + " integer primary key autoincrement, " +
@@ -131,8 +129,6 @@ public class DBManager {
                 KEY_event_start_date + " long not null," +
                 KEY_event_end_date + " long not null," +
                 KEY_event_is_allday + " integer not null," +
-                KEY_event_rrule + " text not null," +
-                KEY_event_rdate + " text not null," +
                 KEY_event_advance + " text not null," +
                 KEY_event_url + " text not null," +
                 KEY_event_editable + " integer not null," +
@@ -166,33 +162,36 @@ public class DBManager {
         public static final String KEY_recurrence_syear = "recurrence_syear";// event 开始日期年
         public static final String KEY_recurrence_smonth = "recurrence_smonth";// event 开始日期月
         public static final String KEY_recurrence_sday = "recurrence_sday";// event 开始日期日
+        public static final String KEY_recurrence_rule = "recurrence_rule";// rrule明文
         public static final String[] columns = new String[]{
                 KEY_recurrence_id, KEY_recurrence_event_id, KEY_recurrence_frequency_type,
                 KEY_recurrence_interval, KEY_recurrence_end_type, KEY_recurrence_end_date,
                 KEY_recurrence_end_count, KEY_recurrence_by_monthday, KEY_recurrence_by_month,
                 KEY_recurrence_by_weekno, KEY_recurrence_by_yearday, KEY_recurrence_by_day,
                 KEY_recurrence_positions, KEY_recurrence_week_start, KEY_recurrence_start_date,
-                KEY_recurrence_syear, KEY_recurrence_smonth, KEY_recurrence_sday};
+                KEY_recurrence_syear, KEY_recurrence_smonth, KEY_recurrence_sday,
+                KEY_recurrence_rule};
         public static final String Create_table = "create table if not exists " +
                 TableName + " (" +
                 KEY_recurrence_id + " integer primary key autoincrement, " +
                 KEY_recurrence_event_id + " integer not null, " +
                 KEY_recurrence_frequency_type + " integer not null," +
-                KEY_recurrence_interval + " integer not null," +
+                KEY_recurrence_interval + " integer," +
                 KEY_recurrence_end_type + " integer not null," +
                 KEY_recurrence_end_date + " long not null," +
                 KEY_recurrence_end_count + " integer not null," +
-                KEY_recurrence_by_monthday + " text not null," +
-                KEY_recurrence_by_month + " text not null," +
-                KEY_recurrence_by_weekno + " text not null," +
-                KEY_recurrence_by_yearday + " text not null," +
-                KEY_recurrence_by_day + " text not null," +
-                KEY_recurrence_positions + " text not null," +
-                KEY_recurrence_week_start + " integer not null," +
+                KEY_recurrence_by_monthday + " text," +
+                KEY_recurrence_by_month + " text," +
+                KEY_recurrence_by_weekno + " text," +
+                KEY_recurrence_by_yearday + " text," +
+                KEY_recurrence_by_day + " text," +
+                KEY_recurrence_positions + " text," +
+                KEY_recurrence_week_start + " integer," +
                 KEY_recurrence_start_date + " long not null," +
                 KEY_recurrence_syear + " integer not null," +
                 KEY_recurrence_smonth + " integer not null," +
-                KEY_recurrence_sday + " integer not null" +
+                KEY_recurrence_sday + " integer not null," +
+                KEY_recurrence_rule + " text" +
                 ");";
     }
 
@@ -338,8 +337,6 @@ public class DBManager {
         cv.put(Event.KEY_event_start_date, bean.event_start_date);
         cv.put(Event.KEY_event_end_date, bean.event_end_date);
         cv.put(Event.KEY_event_is_allday, bean.event_is_allday);
-        cv.put(Event.KEY_event_rrule, bean.event_rrule);
-        cv.put(Event.KEY_event_rdate, bean.event_rdate);
         cv.put(Event.KEY_event_advance, bean.event_advance);
         cv.put(Event.KEY_event_url, bean.event_url);
         cv.put(Event.KEY_event_editable, bean.event_editable);
@@ -370,6 +367,7 @@ public class DBManager {
         cv.put(Recurrence.KEY_recurrence_syear, bean.recurrence_syear);
         cv.put(Recurrence.KEY_recurrence_smonth, bean.recurrence_smonth);
         cv.put(Recurrence.KEY_recurrence_sday, bean.recurrence_sday);
+        cv.put(Recurrence.KEY_recurrence_rule, bean.recurrence_rule);
 
         return mDb.insert(Recurrence.TableName, null, cv);
     }

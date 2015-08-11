@@ -1,4 +1,4 @@
-package demo.ringares.com.ical4jdemo.bean;
+package demo.ringares.com.ical4jdemo.manager;
 
 import android.content.Context;
 
@@ -17,6 +17,10 @@ import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Summary;
 
+import demo.ringares.com.ical4jdemo.bean.EventDataBean;
+import demo.ringares.com.ical4jdemo.bean.LocationDataBean;
+import demo.ringares.com.ical4jdemo.bean.PersonDataBean;
+import demo.ringares.com.ical4jdemo.bean.RecurrenceDataBean;
 import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
 
 /**

@@ -58,8 +58,8 @@ public class RecurrenceDataBean {
     public long recurrence_start_date;// event 开始日期时间戳
     public int recurrence_syear;// event 开始日期年
     public int recurrence_smonth;// event 开始日期月
-
     public int recurrence_sday;// event 开始日期日
+    public String recurrence_rule;// rrule明文
 
 
     public RecurrenceDataBean() {
@@ -94,7 +94,7 @@ public class RecurrenceDataBean {
         this.recurrence_syear = date.getYear();
         this.recurrence_smonth = date.getMonth();
         this.recurrence_sday = date.getDay();
-
+        this.recurrence_rule = recur.toString();
 
     }
 
