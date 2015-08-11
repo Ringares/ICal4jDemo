@@ -67,7 +67,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import demo.ringares.com.ical4jdemo.bean.EventModel;
+import demo.ringares.com.ical4jdemo.bean.EventManager;
 import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
 
 
@@ -122,12 +122,12 @@ public class MainActivity extends ActionBarActivity {
 
 
         /**解析*/
-        net.fortuna.ical4j.model.Calendar calendar = null;
+
         try {
-            calendar = parseCalerdar(ICAL_DATA);
+            net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(ICAL_DATA);
             //获取vEvent
             VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
-            EventModel eventModel = new EventModel(vEvent, this.getApplicationContext());
+            EventManager eventModel = new EventManager(vEvent, this.getApplicationContext());
 
             eventModel.insertEventInLocal();
 

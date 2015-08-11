@@ -6,16 +6,16 @@ package demo.ringares.com.ical4jdemo.bean;
  * Description
  */
 public class PersonDataBean {
-    public int person_id;//Ö÷¼ü ±¾µØid
-    public int person_event_id;// ¶ÔÓ¦event_id
-    public int person_type;// ÁªÏµÈËÀàĞÍ£¬ÀıÈçÊÖ»úÁªÏµÈË£¬ÓÊÏäÁªÏµÈË£¬ÉçÇøºÃÓÑ//todo
-    public String person_display_name;// ÁªÏµÈËÏÔÊ¾Ãû×Ö
-    public String person_first_name;// ÁªÏµÈËÃû×Ö
-    public String person_last_name;// ÁªÏµÈËĞÕÊÏ
-    public String person_Email;// ÁªÏµÈËÓÊÏä
-    public String person_phone;// ÁªÏµÈËÊÖ»ú
-    public int person_is_self;// ÁªÏµÈËÊÇ·ñÊÇ×Ô¼º 0 ²»ÊÇ 1ÊÇ
-    public String person_avatar_url;// Í·Ïñurl
-    public String person_other_info;// ÁªÏµÈËÆäËûĞÅÏ¢À©Õ¹ JSON String
+    public int person_id;//ä¸»é”® æœ¬åœ°id
+    public int person_event_id;// å¯¹åº”event_id
+    public int person_type;// è”ç³»äººç±»å‹ï¼Œä¾‹å¦‚æ‰‹æœºè”ç³»äººï¼Œé‚®ç®±è”ç³»äººï¼Œç¤¾åŒºå¥½å‹//todo
+    public String person_display_name;// è”ç³»äººæ˜¾ç¤ºåå­—
+    public String person_first_name;// è”ç³»äººåå­—
+    public String person_last_name;// è”ç³»äººå§“æ°
+    public String person_Email;// è”ç³»äººé‚®ç®±
+    public String person_phone;// è”ç³»äººæ‰‹æœº
+    public int person_is_self;// è”ç³»äººæ˜¯å¦æ˜¯è‡ªå·± 0 ä¸æ˜¯ 1æ˜¯
+    public String person_avatar_url;// å¤´åƒurl
+    public String person_other_info;// è”ç³»äººå…¶ä»–ä¿¡æ¯æ‰©å±• JSON String
 
 }

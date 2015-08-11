@@ -6,12 +6,12 @@ package demo.ringares.com.ical4jdemo.bean;
  * Description
  */
 public class LocationDataBean {
-    public int location_id;//主键 本地id
-    public int location_event_id;// 对应event_id
-    public double location_lat;// 地址纬度
-    public double location_lon;// 地址经度
-    public String location_city;// 地址城市
-    public String location_country;// 地址国家
-    public String location_desc;// 地址整体详细描述
+    public int location_id;//涓婚敭 鏈湴id
+    public int location_event_id;// 瀵瑰簲event_id
+    public double location_lat;// 鍦板潃绾害
+    public double location_lon;// 鍦板潃缁忓害
+    public String location_city;// 鍦板潃鍩庡競
+    public String location_country;// 鍦板潃鍥藉
+    public String location_desc;// 鍦板潃鏁翠綋璇︾粏鎻忚堪
 
 }

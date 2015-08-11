@@ -6,10 +6,10 @@ package demo.ringares.com.ical4jdemo.bean;
  * Description
  */
 public class ConnectionDataBean {
-    public int connection_id ;//Ö÷¼ü ±¾µØid
-    public long connection_sid ;// ·şÎñÆ÷id
-    public int connection_type ;// °ó¶¨ÀàĞÍ,ÀıÈçgoogle¡¢iCloud¡¢facebook¡¢local
-    public int connection_status ;// °ó¶¨×´Ì¬(0°ó¶¨Ê§Ğ§,1°ó¶¨Õı³£)
-    public String connection_userinfo ;// °ó¶¨µÄÓÃ»§ĞÅÏ¢ JSON String
+    public int connection_id ;//ä¸»é”® æœ¬åœ°id
+    public long connection_sid ;// æœåŠ¡å™¨id
+    public int connection_type ;// ç»‘å®šç±»å‹,ä¾‹å¦‚googleã€iCloudã€facebookã€local
+    public int connection_status ;// ç»‘å®šçŠ¶æ€(0ç»‘å®šå¤±æ•ˆ,1ç»‘å®šæ­£å¸¸)
+    public String connection_userinfo ;// ç»‘å®šçš„ç”¨æˆ·ä¿¡æ¯ JSON String
 
 }

@@ -11,26 +11,26 @@ public class EventDataBean {
     public static final String EVENT_FLAG_DELETE = "D";
 
 
-    public String event_id;//Ö÷¼ü ±¾µØid
-    public int event_is_syn;// ÊÇ·ñĞèÒªÍ¬²½
-    public String event_flag;// Êı¾İ²Ù×÷ÀàĞÍA:add,E:edit,D:delete
-    public long event_ts;// Í¬²½µÄÊ±¼ä´Á ·şÎñÆ÷·µ»ØµÄ
-    public long event_sid;// ·şÎñÆ÷id
-    public int event_calendar_id;// calendar id,¶ÔÓ¦calenadr ±íµÄlocal id
-    public String event_uuid;// »î¶¯µÄÎ¨Ò»±êÊ¶·û
-    public String event_title;// »î¶¯±êÌâ
-    public String event_note;// »î¶¯±¸×¢
-    public long event_start_date;// »î¶¯¿ªÊ¼Ê±¼ä´Á ºÁÃë
-    public long event_end_date;// »î¶¯½áÊøÊ±¼ä´Á
-    public int event_is_allday;// »î¶¯ÊÇ·ñÊÇÈ«Ìì(0²»ÊÇ,1ÊÇ)
-    public String event_rrule;// ÖØ¸´·½Ê½±í´ïÊ½,¿Õ±íÊ¾²»ÖØ¸´£¬ÓÃµÄÊ±ºòĞèÒª½âÎö
-    public String event_rdate;// ÊÂ¼şµÄÑ­»·ÈÕÆÚ¡£Í¨³£¿ÉÒÔºÍRRULEÒ»ÆğÊ¹ÓÃÀ´¶¨ÒåÒ»¸öÖØ¸´·¢ÉúµÄ×Ü¼¯ºÏ¡£
-    public String event_advance;// ÌáÇ°ÌáĞÑÊ±¼ä£¬µ¥Î»ÊÇ·ÖÖÓ¡£ÒÔ,Îª¼ä¸ôÖ§³Ö¶à¸öÀıÈç0,5,60,120
-    public String event_url;// »î¶¯Á´½Óurl
-    public int event_editable;// »î¶¯ÊÇ·ñ¿ÉÒÔ±à¼­£¬(0²»¿ÉÒÔ,1¿ÉÒÔ)
-    public long event_create_ts;// »î¶¯´´½¨Ê±¼ä´Á
-    public long event_update_ts;// »î¶¯±à¼­¸üĞÂÊ±¼ä´Á
-    public String event_status;// »î¶¯µÄ×´Ì¬ Ä¬ÈÏconformed
-    public String event_iCal;// ical Ô­ÎÄ£¬Ã¿´ÎĞŞ¸ÄÒªupdate¶ÔÓ¦Ö§³ÖĞŞ¸ÄµÄ×Ö¶Î
+    public String event_id;//ä¸»é”® æœ¬åœ°id
+    public int event_is_syn;// æ˜¯å¦éœ€è¦åŒæ­¥
+    public String event_flag;// æ•°æ®æ“ä½œç±»å‹A:add,E:edit,D:delete
+    public long event_ts;// åŒæ­¥çš„æ—¶é—´æˆ³ æœåŠ¡å™¨è¿”å›çš„
+    public long event_sid;// æœåŠ¡å™¨id
+    public int event_calendar_id;// calendar id,å¯¹åº”calenadr è¡¨çš„local id
+    public String event_uuid;// æ´»åŠ¨çš„å”¯ä¸€æ ‡è¯†ç¬¦
+    public String event_title;// æ´»åŠ¨æ ‡é¢˜
+    public String event_note;// æ´»åŠ¨å¤‡æ³¨
+    public long event_start_date;// æ´»åŠ¨å¼€å§‹æ—¶é—´æˆ³ æ¯«ç§’
+    public long event_end_date;// æ´»åŠ¨ç»“æŸæ—¶é—´æˆ³
+    public int event_is_allday;// æ´»åŠ¨æ˜¯å¦æ˜¯å…¨å¤©(0ä¸æ˜¯,1æ˜¯)
+    public String event_rrule;// é‡å¤æ–¹å¼è¡¨è¾¾å¼,ç©ºè¡¨ç¤ºä¸é‡å¤ï¼Œç”¨çš„æ—¶å€™éœ€è¦è§£æ
+    public String event_rdate;// äº‹ä»¶çš„å¾ªç¯æ—¥æœŸã€‚é€šå¸¸å¯ä»¥å’ŒRRULEä¸€èµ·ä½¿ç”¨æ¥å®šä¹‰ä¸€ä¸ªé‡å¤å‘ç”Ÿçš„æ€»é›†åˆã€‚
+    public String event_advance;// æå‰æé†’æ—¶é—´ï¼Œå•ä½æ˜¯åˆ†é’Ÿã€‚ä»¥,ä¸ºé—´éš”æ”¯æŒå¤šä¸ªä¾‹å¦‚0,5,60,120
+    public String event_url;// æ´»åŠ¨é“¾æ¥url
+    public int event_editable;// æ´»åŠ¨æ˜¯å¦å¯ä»¥ç¼–è¾‘ï¼Œ(0ä¸å¯ä»¥,1å¯ä»¥)
+    public long event_create_ts;// æ´»åŠ¨åˆ›å»ºæ—¶é—´æˆ³
+    public long event_update_ts;// æ´»åŠ¨ç¼–è¾‘æ›´æ–°æ—¶é—´æˆ³
+    public String event_status;// æ´»åŠ¨çš„çŠ¶æ€ é»˜è®¤conformed
+    public String event_iCal;// ical åŸæ–‡ï¼Œæ¯æ¬¡ä¿®æ”¹è¦updateå¯¹åº”æ”¯æŒä¿®æ”¹çš„å­—æ®µ
 
 }

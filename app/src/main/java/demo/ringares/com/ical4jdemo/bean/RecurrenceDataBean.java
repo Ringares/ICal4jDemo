@@ -1,5 +1,6 @@
 package demo.ringares.com.ical4jdemo.bean;
 
+import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.property.RRule;
 
 /**
@@ -8,29 +9,67 @@ import net.fortuna.ical4j.model.property.RRule;
  * Description
  */
 public class RecurrenceDataBean {
-    public int recurrence_id;//Ö÷¼ü ±¾µØid
-    public int recurrence_event_id;// ¶ÔÓ¦event_id
-    public int recurrence_frequency_type;// ÖØ¸´ÆµÂÊÀàĞÍ
-    public int recurrence_interval;// ÖØ¸´¼ä¸ô
-    public int recurrence_end_type;// ÖØ¸´½ØÖ¹ÀàĞÍ
-    public long recurrence_end_date;// ÖØ¸´½ØÖÁÊ±¼ä´Á
-    public int recurrence_end_count;// ÖØ¸´½ØÖÁ´ÎÊı
-    public String recurrence_by_monthday;// Ò»¸öÔÂÖĞµÄÄÄ¼¸Ìì
-    public String recurrence_by_month;// Ò»ÄêÖĞµÄÄÄ¼¸¸öÔÂ
-    public String recurrence_by_weekno;// Ò»ÄêÖĞµÄÄÄ¼¸ÖÜ
-    public String recurrence_by_yearday;// Ò»ÄêÖĞµÄÄÄ¼¸Ìì
-    public String recurrence_by_day;// Ò»ÖÜÖĞµÄÄÄ¼¸Ìì
-    public String recurrence_positions;// Î»ÖÃ¼¯ºÏ£¬·ÖÇé¿öÊ¹ÓÃ£¬ÊÇ·ñ¼ÆËã£¬Ôİ¶¨
-    public int recurrence_week_start;// ÖÜÊ×ÈÕ 1 SUN 2Mon
-    public long recurrence_start_date;// event ¿ªÊ¼ÈÕÆÚÊ±¼ä´Á
-    public int recurrence_syear;// event ¿ªÊ¼ÈÕÆÚÄê
-    public int recurrence_smonth;// event ¿ªÊ¼ÈÕÆÚÔÂ
-    public int recurrence_sday;// event ¿ªÊ¼ÈÕÆÚÈÕ
+
+    /**
+     * FREQ
+     */
+    static final int FREQ_NONE = -1;
+    static final int FREQ_DAILY = 0;
+    static final int FREQ_WEEKLY = 1;
+    static final int FREQ_MONTHLY = 2;
+    static final int FREQ_YEARLY = 3;
+
+
+    public int recurrence_id;//ä¸»é”® æœ¬åœ°id
+    public int recurrence_event_id;// å¯¹åº”event_id
+    public int recurrence_frequency_type;// é‡å¤é¢‘ç‡ç±»å‹
+    public int recurrence_interval;// é‡å¤é—´éš” (æœªè®¾ç½®-1)
+    public int recurrence_end_type;// é‡å¤æˆªæ­¢ç±»å‹
+    public long recurrence_end_date;// é‡å¤æˆªè‡³æ—¶é—´æˆ³
+    public int recurrence_end_count;// é‡å¤æˆªè‡³æ¬¡æ•° (æœªè®¾ç½®-1)
+    public String recurrence_by_monthday;// ä¸€ä¸ªæœˆä¸­çš„å“ªå‡ å¤©
+    public String recurrence_by_month;// ä¸€å¹´ä¸­çš„å“ªå‡ ä¸ªæœˆ
+    public String recurrence_by_weekno;// ä¸€å¹´ä¸­çš„å“ªå‡ å‘¨
+    public String recurrence_by_yearday;// ä¸€å¹´ä¸­çš„å“ªå‡ å¤©
+    public String recurrence_by_day;// ä¸€å‘¨ä¸­çš„å“ªå‡ å¤©
+    public String recurrence_positions;// ä½ç½®é›†åˆï¼Œåˆ†æƒ…å†µä½¿ç”¨ï¼Œæ˜¯å¦è®¡ç®—ï¼Œæš‚å®š
+    public int recurrence_week_start;// å‘¨é¦–æ—¥ 1 SUN 2Mon
+    public long recurrence_start_date;// event å¼€å§‹æ—¥æœŸæ—¶é—´æˆ³
+    public int recurrence_syear;// event å¼€å§‹æ—¥æœŸå¹´
+    public int recurrence_smonth;// event å¼€å§‹æ—¥æœŸæœˆ
+    public int recurrence_sday;// event å¼€å§‹æ—¥æœŸæ—¥
 
     public RecurrenceDataBean(RRule rRule, long startDate) {
+        new RecurrenceDataBean(-1, rRule, startDate);
+    }
+
+    public RecurrenceDataBean(int eventId, RRule rRule, long startDate) {
+        Recur recur = rRule.getRecur();
+
+        this.recurrence_event_id = eventId;
+        this.recurrence_frequency_type = getFreqTypeFromString(recur.getFrequency());
+        this.recurrence_interval = recur.getInterval();
+        this.recurrence_end_count = recur.getCount();
 
     }
-    public RecurrenceDataBean(){
+
+    private int getFreqTypeFromString(String frequency) {
+        int type;
+        if ("YEARLY".equals(frequency)) {
+            type = FREQ_YEARLY;
+        } else if ("MONTHLY".equals(frequency)) {
+            type = FREQ_MONTHLY;
+        } else if ("WEEKLY".equals(frequency)) {
+            type = FREQ_WEEKLY;
+        } else if ("DAILY".equals(frequency)) {
+            type = FREQ_DAILY;
+        } else {
+            type = FREQ_NONE;
+        }
+        return type;
+    }
+
+    public RecurrenceDataBean() {
 
     }
 }

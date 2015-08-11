@@ -35,7 +35,7 @@ import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
  "END:VEVENT\n"
 
  */
-public class EventModel {
+public class EventManager {
     private Context ctx;
     /**需要处理的iCal协议定义字段*/
     public String eventData; //vEvent原文
@@ -63,7 +63,14 @@ public class EventModel {
     //todo 还有
 
 
-    public EventModel(VEvent vEvent, Context ctx) {
+    /**4个相关的DataBean*/
+    private final EventDataBean eventDataBean;
+    private final LocationDataBean locationDataBean;
+    private final PersonDataBean personDataBean;
+    private final RecurrenceDataBean recurrenceDataBean;
+
+
+    public EventManager(VEvent vEvent, Context ctx) {
         this.ctx =ctx;
 
         this.eventData = vEvent.toString();
@@ -103,8 +110,29 @@ public class EventModel {
 
         this.location = vEvent.getLocation();
         this.attendee = (Attendee)vEvent.getProperty(Property.ATTENDEE);
-
         this.rrule = (RRule) vEvent.getProperty(Property.RRULE);
+
+        eventDataBean = createEventDataBean();
+        locationDataBean = createLocationDataBean();
+        personDataBean = createPersonDataBean();
+        recurrenceDataBean = createRecurrenceDataBean();
+    }
+
+    private RecurrenceDataBean createRecurrenceDataBean() {
+        RecurrenceDataBean dataBean = new RecurrenceDataBean(rrule, startTime);
+        return dataBean;
+    }
+
+    private PersonDataBean createPersonDataBean() {
+        return null;
+    }
+
+    private LocationDataBean createLocationDataBean() {
+        return null;
+    }
+
+    private EventDataBean createEventDataBean() {
+        return null;
     }
 
     /**
@@ -113,6 +141,7 @@ public class EventModel {
      */
     public boolean insertEventInLocal(){
         DBManager open = DBManager.open(ctx);
+        /*todo 考虑加上事物操作**/
 
         /**插入Event表*/
 
@@ -121,7 +150,6 @@ public class EventModel {
         /**插入Person表*/
 
         /**插入Location表*/
-
 
         return false;
     }

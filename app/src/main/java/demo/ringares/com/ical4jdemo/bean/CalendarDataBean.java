@@ -6,16 +6,16 @@ package demo.ringares.com.ical4jdemo.bean;
  * Description
  */
 public class CalendarDataBean {
-    public String calendar_Id;//Ö÷¼ü ±¾µØid
-    public String calendar_sid;// ·şÎñÆ÷id
-    public String calendar_connection_id;// °ó¶¨Á¬½ÓµÄid,¶ÔÓ¦connection ±íµÄid
-    public String calendar_name;// ÈÕÀúÃû³Æ
-    public String calendar_color;// ÈÕÀúÑÕÉ«
-    public String calendar_desc;// ÈÕÀúÃèÊö
-    public String calendar_type;// ÈÕÀúÀàĞÍ£ºÈç¶©ÔÄ½Ú¼ÙÈÕ¡¢ÊÚÈ¨»ñÈ¡¡¢ÓÃ»§Ìí¼ÓµÈ
-    public String calendar_visible;// ÊÇ·ñÏÔÊ¾ÈÕÀúÊı¾İ(0²»ÏÔÊ¾,1ÏÔÊ¾)
-    public String calendar_remind;// ÈÕÀúÊı¾İÊÇ·ñÌáĞÑ(0²»ÌáĞÑ,1ÌáĞÑ)
-    public String calendar_access;// ÈÕÀú²Ù×÷È¨ÏŞÀàĞÍ£¬Ö»¶Á¡¢¶ÁĞ´
-    public String calendar_other_info;// À©Õ¹×Ö¶Î JSON String
+    public String calendar_Id;//ä¸»é”® æœ¬åœ°id
+    public String calendar_sid;// æœåŠ¡å™¨id
+    public String calendar_connection_id;// ç»‘å®šè¿æ¥çš„id,å¯¹åº”connection è¡¨çš„id
+    public String calendar_name;// æ—¥å†åç§°
+    public String calendar_color;// æ—¥å†é¢œè‰²
+    public String calendar_desc;// æ—¥å†æè¿°
+    public String calendar_type;// æ—¥å†ç±»å‹ï¼šå¦‚è®¢é˜…èŠ‚å‡æ—¥ã€æˆæƒè·å–ã€ç”¨æˆ·æ·»åŠ ç­‰
+    public String calendar_visible;// æ˜¯å¦æ˜¾ç¤ºæ—¥å†æ•°æ®(0ä¸æ˜¾ç¤º,1æ˜¾ç¤º)
+    public String calendar_remind;// æ—¥å†æ•°æ®æ˜¯å¦æé†’(0ä¸æé†’,1æé†’)
+    public String calendar_access;// æ—¥å†æ“ä½œæƒé™ç±»å‹ï¼Œåªè¯»ã€è¯»å†™
+    public String calendar_other_info;// æ‰©å±•å­—æ®µ JSON String
 
 }
