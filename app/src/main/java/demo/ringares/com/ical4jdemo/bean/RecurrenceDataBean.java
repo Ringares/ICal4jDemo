@@ -6,6 +6,8 @@ import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.WeekDayList;
 import net.fortuna.ical4j.model.property.RRule;
 
+import java.util.Calendar;
+
 /**
  * Created by ls
  * on 2015/8/10
@@ -90,10 +92,11 @@ public class RecurrenceDataBean {
         this.recurrence_positions = getPosList();
         this.recurrence_week_start = getWeekStartDay();
         this.recurrence_start_date = startDate;
-        java.util.Date date = new java.util.Date(startDate);
-        this.recurrence_syear = date.getYear();
-        this.recurrence_smonth = date.getMonth();
-        this.recurrence_sday = date.getDay();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(startDate);
+        this.recurrence_syear = calendar.get(Calendar.YEAR);
+        this.recurrence_smonth = calendar.get(Calendar.MONTH);
+        this.recurrence_sday = calendar.get(Calendar.DAY_OF_MONTH)+1; //1-12month
         this.recurrence_rule = recur.toString();
 
     }
@@ -116,6 +119,7 @@ public class RecurrenceDataBean {
 
 
     private int getEndType() {
+        /**count和until字段不能同时存在,同时存在时抛异常*/
         if (recurrence_end_date == -1 && recurrence_end_count == -1) {
             return END_TYPE_NONE;
         } else if (recurrence_end_date != -1 && recurrence_end_count != -1) {
@@ -204,4 +208,28 @@ public class RecurrenceDataBean {
         }
     }
 
+    @Override
+    public String toString() {
+        return "RecurrenceDataBean{" +
+                "recurrence_id=" + recurrence_id +
+                ", recurrence_event_id=" + recurrence_event_id +
+                ", recurrence_frequency_type=" + recurrence_frequency_type +
+                ", recurrence_interval=" + recurrence_interval +
+                ", recurrence_end_type=" + recurrence_end_type +
+                ", recurrence_end_date=" + recurrence_end_date +
+                ", recurrence_end_count=" + recurrence_end_count +
+                ", recurrence_by_monthday='" + recurrence_by_monthday + '\'' +
+                ", recurrence_by_month='" + recurrence_by_month + '\'' +
+                ", recurrence_by_weekno='" + recurrence_by_weekno + '\'' +
+                ", recurrence_by_yearday='" + recurrence_by_yearday + '\'' +
+                ", recurrence_by_day='" + recurrence_by_day + '\'' +
+                ", recurrence_positions='" + recurrence_positions + '\'' +
+                ", recurrence_week_start=" + recurrence_week_start +
+                ", recurrence_start_date=" + recurrence_start_date +
+                ", recurrence_syear=" + recurrence_syear +
+                ", recurrence_smonth=" + recurrence_smonth +
+                ", recurrence_sday=" + recurrence_sday +
+                ", recurrence_rule='" + recurrence_rule + '\'' +
+                '}';
+    }
 }

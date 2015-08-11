@@ -315,18 +315,24 @@ public class DBManager {
         return dBManagerInstance;
     }
 
+    /**
+     * 开启事务
+     */
     public void beginTransaction() {
         mDb.beginTransaction();
     }
 
+    /**事务成功*/
     public void setTransactionSuccessful() {
         mDb.setTransactionSuccessful();
     }
 
+    /**事务结束*/
     public void endTransaction() {
         mDb.endTransaction();
     }
 
+    /**关闭*/
     public void close() {
         mDb.close();
         mDbHelper.close();

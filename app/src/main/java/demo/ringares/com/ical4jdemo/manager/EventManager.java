@@ -28,16 +28,6 @@ import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
  * Created by ls
  * on 2015/8/10
  * Description
- * <p/>
- * <p/>
- * "BEGIN:VEVENT\n" +
- * "DTSTAMP:20150723T092650Z\n" +
- * "DTSTART:20150806T080000\n" +
- * "DTEND:20150806T090000\n" +
- * "SUMMARY:RRuleEvent\n" +
- * "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
- * "RRULE:FREQ=WEEKLY;COUNT=4;INTERVAL=2\n" +
- * "END:VEVENT\n"
  */
 public class EventManager {
     private Context ctx;
@@ -163,6 +153,8 @@ public class EventManager {
 
             /**插入Recurrence表*/
             long pos = db.insertDataIntoRecurrence(recurrenceDataBean);
+
+            Log.e("-->", "插入Recurrence表 数据:" + recurrenceDataBean.toString());
             Log.e("-->", "插入Recurrence表 返回位置:" + pos);
 
             /**插入Person表*/
