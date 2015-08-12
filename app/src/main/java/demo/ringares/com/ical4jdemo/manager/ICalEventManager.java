@@ -22,6 +22,7 @@ import net.fortuna.ical4j.model.property.Summary;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.ParseException;
 
 import demo.ringares.com.ical4jdemo.bean.EventDataBean;
 import demo.ringares.com.ical4jdemo.bean.RecurrenceDataBean;
@@ -48,10 +49,12 @@ public class ICalEventManager {
         this.ctx = ctx;
     }
 
-    private void initData(VEvent vEvent) {
-
-    }
-
+    /**
+     * 通过同步数据bean创建EventDataBean包含vEvent存在本地的所有信息
+     *
+     * @param synTongBuBean
+     * @return
+     */
     public EventDataBean createEventDataBean(SynTongBuBean synTongBuBean) {
         String content = synTongBuBean.content;
         EventDataBean eventDataBean = null;
@@ -121,7 +124,7 @@ public class ICalEventManager {
              * RecurrenceDataBean对象
              * ***********************************/
             RRule rrule = (RRule) vEvent.getProperty(Property.RRULE);
-            eventDataBean.recurrenceDataBean = new RecurrenceDataBean(rrule,eventDataBean.event_start_date);
+            eventDataBean.recurrenceDataBean = new RecurrenceDataBean(rrule, eventDataBean.event_start_date);
 
             /*************************************
              * LocationDataBean对象
@@ -190,7 +193,7 @@ public class ICalEventManager {
      *
      * @return
      */
-    public boolean updateEventInLocal() {
+    public boolean updateEventInLocal(EventDataBean eventDataBean) {
 
         return false;
     }
@@ -206,13 +209,12 @@ public class ICalEventManager {
     }
 
     /**
-     * 将此事件与远端同步
+     * 查找一月数据
      *
-     * @return
+     * @param month
      */
-    public boolean synEventWithRemote() {
+    public void getEventsByMonth(String month) {
 
-        return false;
     }
 
     /**
@@ -224,10 +226,37 @@ public class ICalEventManager {
      * @throws ParserException
      */
     public static net.fortuna.ical4j.model.Calendar parseCalerdar(String calendarString) throws IOException, ParserException {
-        Log.i("-->", calendarString);
         StringReader stringReader = new StringReader(calendarString);
         CalendarBuilder builder = new CalendarBuilder();
         return builder.build(stringReader);
 
+    }
+
+    public void modifyICal(String icalData) {
+        Log.e("-->", "===Original data===");
+        Log.e("-->", icalData);
+        Log.e("-->", "=======");
+
+        try {
+            Calendar calendar = parseCalerdar(icalData);
+            VEvent vEvent = (VEvent) calendar.getComponent(Component.VEVENT);
+            /**修改标题*/
+            Summary summary = vEvent.getSummary();
+            summary.setValue("修改标题");
+            /**修改内容*/
+            Description description = vEvent.getDescription();
+            description.setValue("修改内容");
+            /**修改rrule*/
+            RRule rRule = (RRule) vEvent.getProperty(Property.RRULE);
+            rRule.setValue("FREQ=WEEKLY;BYDAY=1SU,2MO,3WE");
+
+            Log.e("-->", "===Altered data===");
+            Log.e("-->", calendar.toString());
+            Log.e("-->", "=======");
+        } catch (IOException | ParserException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }

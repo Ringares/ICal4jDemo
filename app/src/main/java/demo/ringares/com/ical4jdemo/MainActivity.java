@@ -4,8 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 
@@ -191,43 +194,49 @@ public class MainActivity extends ActionBarActivity {
             "END:VCALENDAR";
 
     final static String[] ICAL_DATAS = {ICAL_DATA0, ICAL_DATA1, ICAL_DATA2, ICAL_DATA3, ICAL_DATA4};
+    private EditText et;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        et = (EditText) findViewById(R.id.et);
 
 
         /**测试
          * iCal4j生成uid需要联网获取主机地址,需要开子线程
          * 可以考虑别的方式...未定*/
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    /**创建*/
-                    createEvent();
-                    createOneDayEvent();
-                    createRDateEvent();
-                    createRRuleEvent();
-                    //createEventWithAttachedBinary();
-
-                    /**解析*/
-                    parseRRule();
-
-                    /**修改*/
-                    updateCalendar();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                super.run();
-            }
-        }.start();
+//        new Thread() {
+//            @Override
+//            public void run() {
+//                try {
+//                    /**创建*/
+//                    createEvent();
+//                    createOneDayEvent();
+//                    createRDateEvent();
+//                    createRRuleEvent();
+//                    //createEventWithAttachedBinary();
+//
+//                    /**解析*/
+//                    parseRRule();
+//
+//                    /**修改*/
+//                    updateCalendar();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                super.run();
+//            }
+//        }.start();
 
 
         /**数据库测试*/
 //        DBManager open = DBManager.open(this);
 //        open.testSQL();
+
+        /**修改测试*/
+        ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
+        iCalEventManager.modifyICal(ICAL_DATA0);
 
     }
 
@@ -243,6 +252,14 @@ public class MainActivity extends ActionBarActivity {
             EventDataBean eventDataBean = iCalEventManager.createEventDataBean(synTongBuBean);
             iCalEventManager.insertEventInLocal(eventDataBean);
 
+        }
+    }
+
+    public void select(View view) {
+        Editable text = et.getText();
+        if (!TextUtils.isEmpty(text)) {
+            ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
+            iCalEventManager.getEventsByMonth(text.toString());
         }
     }
 
