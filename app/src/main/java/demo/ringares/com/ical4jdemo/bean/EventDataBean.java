@@ -1,5 +1,7 @@
 package demo.ringares.com.ical4jdemo.bean;
 
+import java.util.ArrayList;
+
 /**
  * Created by ls
  * on 2015/8/10
@@ -10,8 +12,8 @@ public class EventDataBean {
     public static final int EVENT_FLAG_EDIT = 6;
     public static final int EVENT_FLAG_DELETE = 7;
 
-    public static final int EVENT_IS_ALL_DAY_FALSE= 0;
-    public static final int EVENT_IS_ALL_DAY_TRUE= 1;
+    public static final int EVENT_IS_ALL_DAY_FALSE = 0;
+    public static final int EVENT_IS_ALL_DAY_TRUE = 1;
 
     public static final int EVENT_EDITABLE_FALSE = 0;
     public static final int EVENT_EDITABLE_TRUE = 1;
@@ -37,6 +39,11 @@ public class EventDataBean {
     public String event_status;// 活动的状态 默认conformed
     public String event_iCal;// ical 原文，每次修改要update对应支持修改的字段
 
+    public RecurrenceDataBean recurrenceDataBean;
+    public LocationDataBean locationDataBean;
+    public ArrayList<PersonDataBean> personDataBeans;
+
+
     @Override
     public String toString() {
         return "EventDataBean{" +
@@ -59,5 +66,20 @@ public class EventDataBean {
                 ", event_status='" + event_status + '\'' +
                 ", event_iCal='" + event_iCal + '\'' +
                 '}';
+    }
+
+    public void setEventId(int eventId) {
+        this.event_id = event_advance;
+        if (recurrenceDataBean != null) {
+            recurrenceDataBean.recurrence_event_id = eventId;
+        }
+        if (locationDataBean != null) {
+            locationDataBean.location_event_id = eventId;
+        }
+        if (personDataBeans != null) {
+            for (PersonDataBean personDataBean : personDataBeans) {
+                personDataBean.person_event_id = eventId;
+            }
+        }
     }
 }

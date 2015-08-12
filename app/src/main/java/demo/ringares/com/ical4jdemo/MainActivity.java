@@ -9,7 +9,6 @@ import android.view.View;
 
 import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 
-import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.filter.Filter;
 import net.fortuna.ical4j.filter.PeriodRule;
@@ -57,7 +56,6 @@ import org.joda.time.LocalDate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -68,22 +66,87 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import demo.ringares.com.ical4jdemo.manager.EventManager;
+import demo.ringares.com.ical4jdemo.bean.EventDataBean;
+import demo.ringares.com.ical4jdemo.manager.ICalEventManager;
+import demo.ringares.com.ical4jdemo.synbean.SynTongBuBean;
 
 
 public class MainActivity extends ActionBarActivity {
 
-    final static String ICAL_DATA = "BEGIN:VCALENDAR\n" +
-            "PRODID:-//Ben Fortuna//iCal4j 1.0//EN\n" +
+    final static String ICAL_DATA0 = "BEGIN:VCALENDAR\n" +
+            "PRODID:-//Google Inc//Google Calendar 70.9054//EN\n" +
             "VERSION:2.0\n" +
             "CALSCALE:GREGORIAN\n" +
+            "X-WR-CALNAME:xujunyuan2@gmail.com\n" +
+            "X-WR-TIMEZONE:Asia/Tokyo\n" +
+            "BEGIN:VTIMEZONE\n" +
+            "TZID:Asia/Tokyo\n" +
+            "X-LIC-LOCATION:Asia/Tokyo\n" +
+            "BEGIN:STANDARD\n" +
+            "TZOFFSETFROM:+0900\n" +
+            "TZOFFSETTO:+0900\n" +
+            "TZNAME:JST\n" +
+            "DTSTART:19700101T000000\n" +
+            "END:STANDARD\n" +
+            "END:VTIMEZONE\n" +
             "BEGIN:VEVENT\n" +
-            "DTSTAMP:20150723T092650Z\n" +
-            "DTSTART:20150806T080000\n" +
-            "DTEND:20150806T090000\n" +
-            "SUMMARY:RRuleEvent\n" +
-            "UID:20150723T092651Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
-            "RRULE:FREQ=WEEKLY;COUNT=4;INTERVAL=2\n" +
+            "DTSTART;TZID=Asia/Tokyo:20150810T220000\n" +
+            "DTEND;TZID=Asia/Tokyo:20150810T230000\n" +
+            "RRULE:FREQ=WEEKLY;COUNT=2;BYDAY=MO\n" +
+            "DTSTAMP:20150810T124058Z\n" +
+            "UID:5iai140m4nca12vecps8j00pb0@google.com\n" +
+            "CLASS:PUBLIC\n" +
+            "CREATED:20150810T124057Z\n" +
+            "DESCRIPTION:\n" +
+            "LAST-MODIFIED:20150810T124058Z\n" +
+            "LOCATION:\n" +
+            "SEQUENCE:0\n" +
+            "STATUS:CONFIRMED\n" +
+            "SUMMARY:徐俊测试你的第一条Google日历数据吧，让他飞起来\n" +
+            "TRANSP:OPAQUE\n" +
+            "BEGIN:VALARM\n" +
+            "ACTION:DISPLAY\n" +
+            "DESCRIPTION:This is an event reminder\n" +
+            "TRIGGER:-PT30M\n" +
+            "END:VALARM\n" +
+            "END:VEVENT\n" +
+            "END:VCALENDAR";
+
+    final static String ICAL_DATA1 = "BEGIN:VCALENDAR\n" +
+            "PRODID:-//Google Inc//Google Calendar 70.9054//EN\n" +
+            "VERSION:2.0\n" +
+            "CALSCALE:GREGORIAN\n" +
+            "X-WR-CALNAME:xujunyuan2@gmail.com\n" +
+            "X-WR-TIMEZONE:Asia/Tokyo\n" +
+            "BEGIN:VTIMEZONE\n" +
+            "TZID:Asia/Tokyo\n" +
+            "X-LIC-LOCATION:Asia/Tokyo\n" +
+            "BEGIN:STANDARD\n" +
+            "TZOFFSETFROM:+0900\n" +
+            "TZOFFSETTO:+0900\n" +
+            "TZNAME:JST\n" +
+            "DTSTART:19700101T000000\n" +
+            "END:STANDARD\n" +
+            "END:VTIMEZONE\n" +
+            "BEGIN:VEVENT\n" +
+            "DTSTART;TZID=Asia/Tokyo:20150811T110000\n" +
+            "DTEND;TZID=Asia/Tokyo:20150811T120000\n" +
+            "RRULE:FREQ=YEARLY;COUNT=1;INTERVAL=2\n" +
+            "DTSTAMP:20150810T124147Z\n" +
+            "UID:08bcmg9nqbq5pkj76rsta0dhg4@google.com\n" +
+            "CREATED:20150810T124147Z\n" +
+            "DESCRIPTION:\n" +
+            "LAST-MODIFIED:20150810T124147Z\n" +
+            "LOCATION:\n" +
+            "SEQUENCE:0\n" +
+            "STATUS:CONFIRMED\n" +
+            "SUMMARY:第二条测试，这个测试按年重复吧\n" +
+            "TRANSP:OPAQUE\n" +
+            "BEGIN:VALARM\n" +
+            "ACTION:DISPLAY\n" +
+            "DESCRIPTION:This is an event reminder\n" +
+            "TRIGGER:-PT30M\n" +
+            "END:VALARM\n" +
             "END:VEVENT\n" +
             "END:VCALENDAR";
 
@@ -126,7 +189,8 @@ public class MainActivity extends ActionBarActivity {
             "UID:20150723T092654Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
             "END:VEVENT\n" +
             "END:VCALENDAR";
-    final static String[] ICAL_DATAS = {ICAL_DATA,ICAL_DATA2,ICAL_DATA3,ICAL_DATA4};
+
+    final static String[] ICAL_DATAS = {ICAL_DATA0, ICAL_DATA1, ICAL_DATA2, ICAL_DATA3, ICAL_DATA4};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,28 +234,20 @@ public class MainActivity extends ActionBarActivity {
     public void add(View view) {
         /**解析*/
 
-        try {
-            for (int i = 0; i < ICAL_DATAS.length; i++) {
-                String icalData = ICAL_DATAS[i];
+        for (int i = 0; i < ICAL_DATAS.length; i++) {
+            String icalData = ICAL_DATAS[i];
+            SynTongBuBean synTongBuBean = new SynTongBuBean();
+            synTongBuBean.content = icalData;
 
-                net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(icalData);
-                //获取vEvent
-                VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
-                EventManager eventModel = new EventManager(vEvent, this.getApplicationContext());
-                eventModel.insertEventInLocal();
-            }
+            ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
+            EventDataBean eventDataBean = iCalEventManager.createEventDataBean(synTongBuBean);
+            iCalEventManager.insertEventInLocal(eventDataBean);
 
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParserException e) {
-            e.printStackTrace();
         }
     }
 
     private void updateCalendar() throws IOException, ParserException {
-        net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(ICAL_DATA);
+        net.fortuna.ical4j.model.Calendar calendar = ICalEventManager.parseCalerdar(ICAL_DATA1);
         VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
         calendar.getComponents().add(vEvent);
 
@@ -205,7 +261,7 @@ public class MainActivity extends ActionBarActivity {
      */
     private void parseRRule() throws IOException, ParserException {
 
-        net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(ICAL_DATA);
+        net.fortuna.ical4j.model.Calendar calendar = ICalEventManager.parseCalerdar(ICAL_DATA1);
         //获取vEvent
         VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
         String uid = vEvent.getUid().getValue();
@@ -561,21 +617,6 @@ public class MainActivity extends ActionBarActivity {
         Log.e("-->", "=======");
     }
 
-    /**
-     * 解析calendar字符串->iCalenda对象
-     *
-     * @param calendarString
-     * @return
-     * @throws IOException
-     * @throws ParserException
-     */
-    private net.fortuna.ical4j.model.Calendar parseCalerdar(String calendarString) throws IOException, ParserException {
-        Log.i("-->", calendarString);
-        StringReader stringReader = new StringReader(calendarString);
-        CalendarBuilder builder = new CalendarBuilder();
-        return builder.build(stringReader);
-
-    }
 
     private byte[] bitmap2Bytes(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
