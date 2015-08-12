@@ -7,7 +7,6 @@ import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.Attendee;
@@ -37,38 +36,6 @@ import demo.ringares.com.ical4jdemo.synbean.SynTongBuBean;
 public class ICalEventManager {
     private static ICalEventManager instance;
     private Context ctx;
-    /**
-     * 需要处理的iCal协议定义字段
-     */
-    public String eventData; //vEvent原文
-    public String uid; //UID
-    public long createTime; //
-    public long updateTime; //DTSTAMP
-    public long startTime; //DTSTART
-    //DTEND和DURATION 只会出现一个
-    public long endTime; //DTEND
-    public Dur duration; //DURATION
-    public String status; //STATUS
-    public String title; //SUMMARY
-    public String content; //DESCRIPTION
-    public Location location; //LOCATION
-    public Attendee attendee; //ATTENDEE
-
-
-    public RRule rrule; //RRULE
-    /**
-     * 自定义的所需字段
-     */
-    public int isSyn; //是否需要同步
-    public long sid; //同步服务器id
-    public long synTime; //同步时间戳
-    public int eventFlag; //数据操作类型5:add,6:edit,7:delete
-    public String advance; //提前x分钟提醒 eg.10,20,30
-    public String url;
-    public int editable;
-    public int isAllDay;
-    //todo 还有
-
 
     public static ICalEventManager getInstance(Context ctx) {
         if (instance == null) {
@@ -116,12 +83,12 @@ public class ICalEventManager {
             /**event_start_date*/
             DtStart startDate = vEvent.getStartDate();
             if (startDate != null) {
-                this.startTime = startDate.getDate().getTime();
+                eventDataBean.event_start_date = startDate.getDate().getTime();
             }
             /**event_end_date*/
             DtEnd endDate = vEvent.getEndDate();
             if (endDate != null) {
-                this.endTime = endDate.getDate().getTime();
+                eventDataBean.event_end_date = endDate.getDate().getTime();
             }
             /**event_is_allday*/
             /**event_advance*/
@@ -130,17 +97,17 @@ public class ICalEventManager {
             /**event_create_ts*/
             Created created = vEvent.getCreated();
             if (created != null) {
-                this.createTime = created.getDate().getTime();
+                eventDataBean.event_create_ts = created.getDate().getTime();
             }
             /**event_update_ts*/
             DtStamp dateStamp = vEvent.getDateStamp();
             if (dateStamp != null) {
-                this.updateTime = dateStamp.getDateTime().getTime();
+                eventDataBean.event_update_ts = dateStamp.getDateTime().getTime();
             }
             /**event_status*/
             Status status = vEvent.getStatus();
             if (status != null) {
-                this.status = status.getValue();
+                eventDataBean.event_status = status.getValue();
             }
             /**event_iCal*/
             eventDataBean.event_iCal = vEvent.toString();
