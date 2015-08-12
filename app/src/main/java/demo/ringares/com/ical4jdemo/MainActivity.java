@@ -82,7 +82,7 @@ public class MainActivity extends ActionBarActivity {
             "DTSTART:20150806T080000\n" +
             "DTEND:20150806T090000\n" +
             "SUMMARY:RRuleEvent\n" +
-            "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
+            "UID:20150723T092651Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
             "RRULE:FREQ=WEEKLY;COUNT=4;INTERVAL=2\n" +
             "END:VEVENT\n" +
             "END:VCALENDAR";
@@ -96,7 +96,7 @@ public class MainActivity extends ActionBarActivity {
             "DTSTART:20150806T080000\n" +
             "DTEND:20150806T090000\n" +
             "SUMMARY:RRuleEvent\n" +
-            "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
+            "UID:20150723T092652Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
             "RRULE:FREQ=MONTHLY;UNTIL=19971224T000000Z;BYDAY=1FR,-2SU,SA\n" +
             "END:VEVENT\n" +
             "END:VCALENDAR";
@@ -123,10 +123,10 @@ public class MainActivity extends ActionBarActivity {
             "DTSTAMP:20050222T044240Z\n" +
             "DTSTART;VALUE=DATE:20051225\n" +
             "SUMMARY:Christmas Day\n" +
-            "UID:20150723T092653Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
+            "UID:20150723T092654Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
             "END:VEVENT\n" +
             "END:VCALENDAR";
-
+    final static String[] ICAL_DATAS = {ICAL_DATA,ICAL_DATA2,ICAL_DATA3,ICAL_DATA4};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,11 +171,16 @@ public class MainActivity extends ActionBarActivity {
         /**解析*/
 
         try {
-            net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(ICAL_DATA4);
-            //获取vEvent
-            VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
-            EventManager eventModel = new EventManager(vEvent, this.getApplicationContext());
-            eventModel.insertEventInLocal();
+            for (int i = 0; i < ICAL_DATAS.length; i++) {
+                String icalData = ICAL_DATAS[i];
+
+                net.fortuna.ical4j.model.Calendar calendar = parseCalerdar(icalData);
+                //获取vEvent
+                VEvent vEvent = (VEvent) calendar.getComponents().getComponent(Component.VEVENT);
+                EventManager eventModel = new EventManager(vEvent, this.getApplicationContext());
+                eventModel.insertEventInLocal();
+            }
+
 
 
         } catch (IOException e) {

@@ -2,6 +2,7 @@ package demo.ringares.com.ical4jdemo.dbHelper;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -125,16 +126,16 @@ public class DBManager {
                 KEY_event_calendar_id + " integer not null," +
                 KEY_event_uuid + " text not null," +
                 KEY_event_title + " text not null," +
-                KEY_event_note + " text not null," +
+                KEY_event_note + " text," +
                 KEY_event_start_date + " long not null," +
                 KEY_event_end_date + " long not null," +
                 KEY_event_is_allday + " integer not null," +
-                KEY_event_advance + " text not null," +
-                KEY_event_url + " text not null," +
+                KEY_event_advance + " text," +
+                KEY_event_url + " text," +
                 KEY_event_editable + " integer not null," +
-                KEY_event_create_ts + " long not null," +
+                KEY_event_create_ts + " long," +
                 KEY_event_update_ts + " long not null," +
-                KEY_event_status + " text not null," +
+                KEY_event_status + " text," +
                 KEY_event_iCal + " text not null" +
                 ");";
     }
@@ -322,17 +323,23 @@ public class DBManager {
         mDb.beginTransaction();
     }
 
-    /**事务成功*/
+    /**
+     * 事务成功
+     */
     public void setTransactionSuccessful() {
         mDb.setTransactionSuccessful();
     }
 
-    /**事务结束*/
+    /**
+     * 事务结束
+     */
     public void endTransaction() {
         mDb.endTransaction();
     }
 
-    /**关闭*/
+    /**
+     * 关闭
+     */
     public void close() {
         mDb.close();
         mDbHelper.close();
@@ -370,6 +377,15 @@ public class DBManager {
         cv.put(Event.KEY_event_iCal, bean.event_iCal);
 
         return mDb.insert(Event.TableName, null, cv);
+    }
+
+    public int getEventIdByUuid(String uuid) {
+        Cursor cursor = mDb.query(Event.TableName, new String[]{Event.KEY_event_id}, Event.KEY_event_uuid + "=?", new String[]{uuid}, null, null, null);
+        if (cursor.moveToFirst()){
+            int eventId = cursor.getInt(cursor.getColumnIndex(Event.KEY_event_id));
+            return eventId;
+        }
+        return -1;
     }
 
     public long insertDataIntoRecurrence(RecurrenceDataBean bean) {

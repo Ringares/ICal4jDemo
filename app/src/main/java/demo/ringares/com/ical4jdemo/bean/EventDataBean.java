@@ -10,6 +10,12 @@ public class EventDataBean {
     public static final int EVENT_FLAG_EDIT = 6;
     public static final int EVENT_FLAG_DELETE = 7;
 
+    public static final int EVENT_IS_ALL_DAY_FALSE= 0;
+    public static final int EVENT_IS_ALL_DAY_TRUE= 1;
+
+    public static final int EVENT_EDITABLE_FALSE = 0;
+    public static final int EVENT_EDITABLE_TRUE = 1;
+
 
     public String event_id;//主键 本地id
     public int event_is_syn;// 是否需要同步
@@ -31,4 +37,27 @@ public class EventDataBean {
     public String event_status;// 活动的状态 默认conformed
     public String event_iCal;// ical 原文，每次修改要update对应支持修改的字段
 
+    @Override
+    public String toString() {
+        return "EventDataBean{" +
+                "event_is_syn=" + event_is_syn +
+                ", event_flag=" + event_flag +
+                ", event_ts=" + event_ts +
+                ", event_sid=" + event_sid +
+                ", event_calendar_id=" + event_calendar_id +
+                ", event_uuid='" + event_uuid + '\'' +
+                ", event_title='" + event_title + '\'' +
+                ", event_note='" + event_note + '\'' +
+                ", event_start_date=" + event_start_date +
+                ", event_end_date=" + event_end_date +
+                ", event_is_allday=" + event_is_allday +
+                ", event_advance='" + event_advance + '\'' +
+                ", event_url='" + event_url + '\'' +
+                ", event_editable=" + event_editable +
+                ", event_create_ts=" + event_create_ts +
+                ", event_update_ts=" + event_update_ts +
+                ", event_status='" + event_status + '\'' +
+                ", event_iCal='" + event_iCal + '\'' +
+                '}';
+    }
 }

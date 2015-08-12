@@ -56,8 +56,11 @@ public class EventManager {
     public int isSyn; //是否需要同步
     public long sid; //同步服务器id
     public long synTime; //同步时间戳
-    public String eventFlag; //数据操作类型A:add,E:edit,D:delete
+    public int eventFlag; //数据操作类型5:add,6:edit,7:delete
     public String advance; //提前x分钟提醒 eg.10,20,30
+    public String url;
+    public int editable;
+    public int isAllDay;
     //todo 还有
 
 
@@ -122,12 +125,31 @@ public class EventManager {
     }
 
     private EventDataBean createEventDataBean() {
-        return null;
+        EventDataBean eventDataBean = new EventDataBean();
+        eventDataBean.event_is_syn = isSyn;
+        eventDataBean.event_flag = eventFlag;
+        eventDataBean.event_ts = synTime;
+        eventDataBean.event_sid = sid;
+        eventDataBean.event_calendar_id = isSyn;
+        eventDataBean.event_uuid = uid;
+        eventDataBean.event_title = title;
+        eventDataBean.event_note = content;
+        eventDataBean.event_start_date = startTime;
+        eventDataBean.event_end_date = endTime;
+        eventDataBean.event_is_allday = isAllDay;
+        eventDataBean.event_advance = advance;
+        eventDataBean.event_url = url;
+        eventDataBean.event_editable = editable;
+        eventDataBean.event_create_ts = createTime;
+        eventDataBean.event_update_ts = updateTime;
+        eventDataBean.event_status = status;
+        eventDataBean.event_iCal = eventData;
+
+        return eventDataBean;
     }
 
     private RecurrenceDataBean createRecurrenceDataBean() {
-        RecurrenceDataBean dataBean = new RecurrenceDataBean(rrule, startTime);
-        return dataBean;
+        return new RecurrenceDataBean(rrule, startTime);
     }
 
     private PersonDataBean createPersonDataBean() {
@@ -149,9 +171,18 @@ public class EventManager {
         db.beginTransaction();
         try {
 
-            /**插入Event表*/
+            /**插入Event表, 返回eventId*/
+            db.insertDataIntoEvent(eventDataBean);
+            int eventId = db.getEventIdByUuid(eventDataBean.event_uuid);
+            if (eventId==-1){
+                throw new RuntimeException("插入event失败");
+            }
+
+            Log.e("-->", "插入Event表 数据:" + eventDataBean.toString());
+            Log.e("-->", "插入Event表 返回eventId:" + eventId);
 
             /**插入Recurrence表*/
+            recurrenceDataBean.recurrence_event_id = eventId;
             long pos = db.insertDataIntoRecurrence(recurrenceDataBean);
 
             Log.e("-->", "插入Recurrence表 数据:" + recurrenceDataBean.toString());
