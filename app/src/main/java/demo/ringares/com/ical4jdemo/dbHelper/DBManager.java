@@ -19,7 +19,6 @@ import demo.ringares.com.ical4jdemo.bean.RecurrenceDataBean;
  * Description
  */
 public class DBManager {
-
     /***************************************************************
      * 表定义
      ***************************************************************/
@@ -381,12 +380,13 @@ public class DBManager {
 
     public int getEventIdByUuid(String uuid) {
         Cursor cursor = mDb.query(Event.TableName, new String[]{Event.KEY_event_id}, Event.KEY_event_uuid + "=?", new String[]{uuid}, null, null, null);
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             int eventId = cursor.getInt(cursor.getColumnIndex(Event.KEY_event_id));
             return eventId;
         }
         return -1;
     }
+
 
     public long insertDataIntoRecurrence(RecurrenceDataBean bean) {
         ContentValues cv = new ContentValues();
@@ -410,6 +410,62 @@ public class DBManager {
         cv.put(Recurrence.KEY_recurrence_rule, bean.recurrence_rule);
 
         return mDb.insert(Recurrence.TableName, null, cv);
+    }
+
+
+    public Cursor getAllRuleFromRecurrenceByMonth(String year, String month) {
+        /*
+        select * from recurrence where
+        (
+            (
+                (recurrence_syear<2015) or
+                (recurrence_syear=2015 and recurrence_smonth<=8)
+            )
+            and
+            (
+                (
+                    recurrence_frequency_type=3 and (2015-recurrence_syear)%recurrence_interval=0 and recurrence_smonth=8
+                )
+                or
+                (
+                    recurrence_frequency_type=2 and (8-recurrence_smonth)%recurrence_interval=0
+                )
+                or
+                (
+                    recurrence_frequency_type=1
+                )
+                or
+                (
+                    recurrence_frequency_type=0
+                )
+                or
+                (
+                    recurrence_frequency_type=-1
+                )
+            )
+        )
+        */
+        Cursor cursor = mDb.query(
+                Recurrence.TableName,
+                new String[]{Recurrence.KEY_recurrence_event_id, Recurrence.KEY_recurrence_rule},
+                "(" +
+                        "(recurrence_syear<?) or (recurrence_syear=? and recurrence_smonth<=?))" +
+                        " and " +
+                        "(" +
+                        "( recurrence_frequency_type=3 and (?-recurrence_syear)%recurrence_interval=0 and recurrence_smonth=?)" +
+                        " or " +
+                        "( recurrence_frequency_type=2 and (?-recurrence_smonth)%recurrence_interval=0)" +
+                        " or " +
+                        "(  recurrence_frequency_type=1 )" +
+                        " or " +
+                        "(  recurrence_frequency_type=0)" +
+                        " or " +
+                        "(   recurrence_frequency_type=-1)" +
+                        ")",
+                new String[]{year, year, month,year, month, month},
+                null, null, null
+        );
+        return cursor;
     }
 
     public long insertDataIntoLocation(LocationDataBean bean) {

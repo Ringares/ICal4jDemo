@@ -21,10 +21,19 @@
         android:orientation="horizontal">
 
         <EditText
-            android:id="@+id/et"
+            android:id="@+id/et_year"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:hint="year"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/et_month"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="month"
             android:inputType="number" />
 
         <Button

@@ -1,6 +1,8 @@
 package demo.ringares.com.ical4jdemo.manager;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import net.fortuna.ical4j.data.CalendarBuilder;
@@ -8,6 +10,7 @@ import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.Created;
@@ -213,23 +216,32 @@ public class ICalEventManager {
      *
      * @param month
      */
-    public void getEventsByMonth(String month) {
+    public void getEventsByMonth(String year, String month) {
+        DBManager db = DBManager.open(ctx);
+        Cursor cursor = db.getAllRuleFromRecurrenceByMonth(year, month);
+        if (cursor != null) {
+            while(cursor.moveToNext()){
+                int eventId = cursor.getInt(0);
+                String rule = cursor.getString(1);
+                try {
+                    Log.e("-->","====================================");
+                    Log.e("-eventid->",eventId+"");
+                    if (!TextUtils.isEmpty(rule)){
+                        Recur recur = new Recur(rule);
+                        Log.e("-rrule->",recur.toString());
+                    }else{
+                        Log.e("-rrule->","null");
+                    }
 
-    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
 
-    /**
-     * 解析calendar字符串->iCalenda对象
-     *
-     * @param calendarString
-     * @return
-     * @throws IOException
-     * @throws ParserException
-     */
-    public static net.fortuna.ical4j.model.Calendar parseCalerdar(String calendarString) throws IOException, ParserException {
-        StringReader stringReader = new StringReader(calendarString);
-        CalendarBuilder builder = new CalendarBuilder();
-        return builder.build(stringReader);
+            cursor.close();
+        }
 
+        db.close();
     }
 
     public void modifyICal(String icalData) {
@@ -258,5 +270,20 @@ public class ICalEventManager {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 解析calendar字符串->iCalenda对象
+     *
+     * @param calendarString
+     * @return
+     * @throws IOException
+     * @throws ParserException
+     */
+    public static net.fortuna.ical4j.model.Calendar parseCalerdar(String calendarString) throws IOException, ParserException {
+        StringReader stringReader = new StringReader(calendarString);
+        CalendarBuilder builder = new CalendarBuilder();
+        return builder.build(stringReader);
+
     }
 }

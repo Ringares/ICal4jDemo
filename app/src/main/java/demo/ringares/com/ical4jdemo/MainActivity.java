@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -194,13 +193,15 @@ public class MainActivity extends ActionBarActivity {
             "END:VCALENDAR";
 
     final static String[] ICAL_DATAS = {ICAL_DATA0, ICAL_DATA1, ICAL_DATA2, ICAL_DATA3, ICAL_DATA4};
-    private EditText et;
+    private EditText et_year;
+    private EditText et_month;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        et = (EditText) findViewById(R.id.et);
+        et_year = (EditText) findViewById(R.id.et_year);
+        et_month = (EditText) findViewById(R.id.et_month);
 
 
         /**测试
@@ -256,10 +257,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void select(View view) {
-        Editable text = et.getText();
-        if (!TextUtils.isEmpty(text)) {
+        String year = et_year.getText().toString();
+        String month = et_month.getText().toString();
+        if (!TextUtils.isEmpty(year) && TextUtils.isDigitsOnly(year) && !TextUtils.isEmpty(month) && TextUtils.isDigitsOnly(month)) {
             ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
-            iCalEventManager.getEventsByMonth(text.toString());
+            iCalEventManager.getEventsByMonth(year, month);
         }
     }
 
