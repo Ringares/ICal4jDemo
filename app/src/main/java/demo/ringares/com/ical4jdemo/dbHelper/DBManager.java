@@ -440,7 +440,7 @@ public class DBManager {
                 )
                 or
                 (
-                    recurrence_frequency_type=-1
+                    recurrence_frequency_type=-1 and recurrence_syear=2015 and recurrence_smonth=8
                 )
             )
         )
@@ -460,9 +460,9 @@ public class DBManager {
                         " or " +
                         "(  recurrence_frequency_type=0)" +
                         " or " +
-                        "(   recurrence_frequency_type=-1)" +
+                        "(   recurrence_frequency_type=-1 and recurrence_syear=? and recurrence_smonth=?)" +
                         ")",
-                new String[]{year, year, month,year, month, month},
+                new String[]{year, year, month, year, month, month, year, month},
                 null, null, null
         );
         return cursor;
