@@ -134,7 +134,7 @@ public class DBManager {
                 KEY_event_editable + " integer not null," +
                 KEY_event_create_ts + " long," +
                 KEY_event_update_ts + " long not null," +
-                KEY_event_status + " text," +
+                KEY_event_status + " int," +
                 KEY_event_iCal + " text not null" +
                 ");";
     }
@@ -207,10 +207,11 @@ public class DBManager {
         public static final String KEY_location_city = "location_city";// 地址城市
         public static final String KEY_location_country = "location_country";// 地址国家
         public static final String KEY_location_desc = "location_desc";// 地址整体详细描述
+        public static final String KEY_location_url = "location_url";// 地址的url
         public static final String[] columns = new String[]{
                 KEY_location_id, KEY_location_event_id, KEY_location_lat,
                 KEY_location_lon, KEY_location_city, KEY_location_country,
-                KEY_location_country, KEY_location_desc};
+                KEY_location_country, KEY_location_desc, KEY_location_url};
         public static final String Create_table = "create table if not exists " +
                 TableName + " (" +
                 KEY_location_id + " integer primary key autoincrement, " +
@@ -219,7 +220,8 @@ public class DBManager {
                 KEY_location_lon + " real not null," +
                 KEY_location_city + " text not null," +
                 KEY_location_country + " text not null," +
-                KEY_location_desc + " text not null" +
+                KEY_location_desc + " text not null," +
+                KEY_location_url + " text" +
                 ");";
     }
 
@@ -475,6 +477,7 @@ public class DBManager {
         cv.put(Location.KEY_location_city, bean.location_city);
         cv.put(Location.KEY_location_country, bean.location_country);
         cv.put(Location.KEY_location_desc, bean.location_desc);
+        cv.put(Location.KEY_location_url, bean.location_url);
 
         return mDb.insert(Location.TableName, null, cv);
     }

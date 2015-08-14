@@ -13,5 +13,6 @@ public class LocationDataBean {
     public String location_city;// 地址城市
     public String location_country;// 地址国家
     public String location_desc;// 地址整体详细描述
+    public String location_url;// 地址的url
 
 }

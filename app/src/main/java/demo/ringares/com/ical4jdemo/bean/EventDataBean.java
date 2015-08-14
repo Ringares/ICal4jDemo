@@ -18,6 +18,10 @@ public class EventDataBean {
     public static final int EVENT_EDITABLE_FALSE = 0;
     public static final int EVENT_EDITABLE_TRUE = 1;
 
+    public static final int EVENT_STATUS_TENTATIVE = 1;
+    public static final int EVENT_STATUS_CONFIRMED = 2;
+    public static final int EVENT_STATUS_CANCELLED = 3;
+
 
     public String event_id;//主键 本地id
     public int event_is_syn;// 是否需要同步
@@ -36,7 +40,7 @@ public class EventDataBean {
     public int event_editable;// 活动是否可以编辑，(0不可以,1可以)
     public long event_create_ts;// 活动创建时间戳
     public long event_update_ts;// 活动编辑更新时间戳
-    public String event_status;// 活动的状态 默认conformed
+    public int event_status = EVENT_STATUS_CONFIRMED;// 活动的状态 默认conformed
     public String event_iCal;// ical 原文，每次修改要update对应支持修改的字段
 
     public RecurrenceDataBean recurrenceDataBean;

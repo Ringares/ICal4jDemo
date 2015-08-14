@@ -113,7 +113,14 @@ public class ICalEventManager {
             /**event_status*/
             Status status = vEvent.getStatus();
             if (status != null) {
-                eventDataBean.event_status = status.getValue();
+                String statusValue = status.getValue();
+                if ("TENTATIVE".equals(statusValue)) {
+                    eventDataBean.event_status = EventDataBean.EVENT_STATUS_TENTATIVE;
+                } else if ("CANCELLED".equals(statusValue)) {
+                    eventDataBean.event_status = EventDataBean.EVENT_STATUS_CANCELLED;
+                } else {
+                    eventDataBean.event_status = EventDataBean.EVENT_STATUS_CONFIRMED;
+                }
             }
             /**event_iCal*/
             eventDataBean.event_iCal = vEvent.toString();
@@ -220,17 +227,17 @@ public class ICalEventManager {
         DBManager db = DBManager.open(ctx);
         Cursor cursor = db.getAllRuleFromRecurrenceByMonth(year, month);
         if (cursor != null) {
-            while(cursor.moveToNext()){
+            while (cursor.moveToNext()) {
                 int eventId = cursor.getInt(0);
                 String rule = cursor.getString(1);
                 try {
-                    Log.e("-->","====================================");
-                    Log.e("-eventid->",eventId+"");
-                    if (!TextUtils.isEmpty(rule)){
+                    Log.e("-->", "====================================");
+                    Log.e("-eventid->", eventId + "");
+                    if (!TextUtils.isEmpty(rule)) {
                         Recur recur = new Recur(rule);
-                        Log.e("-rrule->",recur.toString());
-                    }else{
-                        Log.e("-rrule->","null");
+                        Log.e("-rrule->", recur.toString());
+                    } else {
+                        Log.e("-rrule->", "null");
                     }
 
                 } catch (ParseException e) {
