@@ -267,6 +267,7 @@ public class ICalEventManager {
             description.setValue("修改内容");
             /**修改rrule*/
             RRule rRule = (RRule) vEvent.getProperty(Property.RRULE);
+            Recur recur = rRule.getRecur();
             rRule.setValue("FREQ=WEEKLY;BYDAY=1SU,2MO,3WE");
 
             Log.e("-->", "===Altered data===");

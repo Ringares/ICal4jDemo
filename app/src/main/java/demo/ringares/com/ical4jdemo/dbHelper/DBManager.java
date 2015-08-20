@@ -24,25 +24,34 @@ public class DBManager {
      ***************************************************************/
 
     /**
-     * 表名:connection  用户绑定第三方账号的连接信息
+     * 表名:account  用户绑定第三方账号的连接信息
      */
-    static class Connection {
-        public static final String TableName = "connection";
-        public static final String KEY_connection_id = "connection_id";//主键 本地id
-        public static final String KEY_connection_sid = "connection_sid";// 服务器id
-        public static final String KEY_connection_type = "connection_type";// 绑定类型,例如google、iCloud、facebook、local
-        public static final String KEY_connection_status = "connection_status";// 绑定状态(0绑定失效,1绑定正常)
-        public static final String KEY_connection_userinfo = "connection_userinfo";// 绑定的用户信息 JSON String
+    static class Account {
+        public static final String TableName = "account";
+        public static final String KEY_account_id = "account_id";//主键 本地id
+        public static final String KEY_account_sid = "account_sid";// 服务器id
+        public static final String KEY_account_type = "account_type";// 绑定类型,例如google、iCloud、facebook、local
+        public static final String KEY_account_host_md5 = "account_host_md5";// 绑定账号的host eg:www.google.com
+        public static final String KEY_account_user_name = "account_user_name";// 绑定的用户名 eg:xxx@gamil.com
+        public static final String KEY_account_service_provider = "account_service_provider";// 绑定账号的服务提供者 eg:Google
+        public static final String KEY_account_user_3sync_id = "account_user_3sync_id";// 绑定账号对应的服务器同步id，服务器返回，客户端不做修改
+        public static final String KEY_account_is_sync = "account_is_sync";
+        // 标志账户是否同步处理过，同步的时候，把数据库中的该字段都设置为0，服务器返回的account 更新到数据库中，更新的数据该字段置为1，最后删除字段为0的数据，
+        // 参考分组表的同步处理
         public static final String[] columns = new String[]{
-                KEY_connection_id, KEY_connection_sid, KEY_connection_type,
-                KEY_connection_status, KEY_connection_userinfo};
+                KEY_account_id, KEY_account_sid, KEY_account_type,
+                KEY_account_host_md5, KEY_account_user_name, KEY_account_service_provider,
+                KEY_account_user_3sync_id, KEY_account_is_sync};
         public static final String Create_table = "create table if not exists " +
                 TableName + " (" +
-                KEY_connection_id + " integer primary key autoincrement, " +
-                KEY_connection_sid + " long not null, " +//todo
-                KEY_connection_type + " integer not null," + //todo
-                KEY_connection_status + " integer not null," +
-                KEY_connection_userinfo + " text not null" +
+                KEY_account_id + " integer primary key autoincrement, " +
+                KEY_account_sid + " long not null, " +
+                KEY_account_type + " text not null," +
+                KEY_account_host_md5 + " text not null," +
+                KEY_account_user_name + " text not null," +
+                KEY_account_service_provider + " text not null," +
+                KEY_account_user_3sync_id + " long not null," +
+                KEY_account_is_sync + " integer not null" +
                 ");";
     }
 
@@ -240,12 +249,15 @@ public class DBManager {
         public static final String KEY_person_phone = "person_phone";// 联系人手机
         public static final String KEY_person_is_self = "person_is_self";// 联系人是否是自己 0 不是 1是
         public static final String KEY_person_avatar_url = "person_avatar_url";// 头像url
+        public static final String KEY_person_role = "person_role";// 用户所属角色
+        public static final String KEY_person_revp_status = "person_revp_status";// 邀请状态
         public static final String KEY_person_other_info = "person_other_info";// 联系人其他信息扩展 JSON String
         public static final String[] columns = new String[]{
                 KEY_person_id, KEY_person_event_id, KEY_person_type,
                 KEY_person_display_name, KEY_person_first_name, KEY_person_last_name,
                 KEY_person_Email, KEY_person_phone, KEY_person_is_self,
-                KEY_person_is_self, KEY_person_avatar_url, KEY_person_other_info};
+                KEY_person_is_self, KEY_person_avatar_url, KEY_person_role,
+                KEY_person_revp_status, KEY_person_other_info};
         public static final String Create_table = "create table if not exists " +
                 TableName + " (" +
                 KEY_person_id + " integer primary key autoincrement, " +
@@ -258,6 +270,8 @@ public class DBManager {
                 KEY_person_phone + " text not null," +
                 KEY_person_is_self + " integer not null," +
                 KEY_person_avatar_url + " text not null," +
+                KEY_person_role + " integer not null," +
+                KEY_person_revp_status + " integer not null," +
                 KEY_person_other_info + " text not null" +
                 ");";
     }
@@ -349,7 +363,7 @@ public class DBManager {
 
     public void testSQL() {
         Log.e("==>", Calendar.Create_table);
-        Log.e("==>", Connection.Create_table);
+        Log.e("==>", Account.Create_table);
         Log.e("==>", Event.Create_table);
         Log.e("==>", Recurrence.Create_table);
         Log.e("==>", Location.Create_table);
@@ -493,6 +507,8 @@ public class DBManager {
         cv.put(Person.KEY_person_phone, bean.person_phone);
         cv.put(Person.KEY_person_is_self, bean.person_is_self);
         cv.put(Person.KEY_person_avatar_url, bean.person_avatar_url);
+        cv.put(Person.KEY_person_role, bean.person_role);
+        cv.put(Person.KEY_person_revp_status, bean.person_revp_status);
         cv.put(Person.KEY_person_other_info, bean.person_other_info);
 
         return mDb.insert(Person.TableName, null, cv);
