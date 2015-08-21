@@ -488,6 +488,7 @@ public class DBManager {
         ContentValues cv = new ContentValues();
         cv.put(Location.KEY_location_event_id, bean.location_event_id);
         cv.put(Location.KEY_location_lat, bean.location_lat);
+        cv.put(Location.KEY_location_lon, bean.location_lon);
         cv.put(Location.KEY_location_city, bean.location_city);
         cv.put(Location.KEY_location_country, bean.location_country);
         cv.put(Location.KEY_location_desc, bean.location_desc);
