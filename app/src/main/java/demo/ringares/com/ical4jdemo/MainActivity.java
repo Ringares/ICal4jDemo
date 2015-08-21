@@ -236,8 +236,9 @@ public class MainActivity extends ActionBarActivity {
 //        open.testSQL();
 
         /**修改测试*/
-        ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
-        iCalEventManager.modifyICal(ICAL_DATA0);
+//        ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
+//        iCalEventManager.modifyICal(ICAL_DATA0);
+
 
     }
 

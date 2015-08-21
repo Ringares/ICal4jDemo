@@ -370,6 +370,7 @@ public class DBManager {
         Log.e("==>", Person.Create_table);
     }
 
+
     public long insertDataIntoEvent(EventDataBean bean) {
         ContentValues cv = new ContentValues();
         cv.put(Event.KEY_event_is_syn, bean.event_is_syn);
@@ -392,6 +393,22 @@ public class DBManager {
         cv.put(Event.KEY_event_iCal, bean.event_iCal);
 
         return mDb.insert(Event.TableName, null, cv);
+    }
+
+    /**
+     * 根据EventId返回ICal原文
+     *
+     * @param eventId
+     * @return
+     */
+    public String getICalByEventId(int eventId) {
+        String ICal = null;
+        Cursor cursor = mDb.query(Event.TableName, new String[]{Event.KEY_event_iCal}, Event.KEY_event_id + "=?", new String[]{eventId + ""}, null, null, null);
+        if (cursor.moveToFirst()) {
+            ICal = cursor.getString(cursor.getColumnIndex(Event.KEY_event_iCal));
+        }
+        return ICal;
+
     }
 
     public int getEventIdByUuid(String uuid) {
@@ -463,7 +480,10 @@ public class DBManager {
         */
         Cursor cursor = mDb.query(
                 Recurrence.TableName,
-                new String[]{Recurrence.KEY_recurrence_event_id, Recurrence.KEY_recurrence_rule},
+                new String[]{
+                        Recurrence.KEY_recurrence_event_id,
+                        Recurrence.KEY_recurrence_start_date,
+                        Recurrence.KEY_recurrence_rule},
                 "(" +
                         "(recurrence_syear<?) or (recurrence_syear=? and recurrence_smonth<=?))" +
                         " and " +

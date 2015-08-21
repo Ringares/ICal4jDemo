@@ -9,9 +9,14 @@ import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateList;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.Created;
 import net.fortuna.ical4j.model.property.Description;
@@ -26,6 +31,7 @@ import net.fortuna.ical4j.model.property.Summary;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
+import java.util.ArrayList;
 
 import demo.ringares.com.ical4jdemo.bean.EventDataBean;
 import demo.ringares.com.ical4jdemo.bean.RecurrenceDataBean;
@@ -225,19 +231,31 @@ public class ICalEventManager {
      */
     public void getEventsByMonth(String year, String month) {
         DBManager db = DBManager.open(ctx);
+        Period monthPeriod = getMonthPeriod(Integer.parseInt(year), Integer.parseInt(month));
+
         Cursor cursor = db.getAllRuleFromRecurrenceByMonth(year, month);
+        Log.e("-->", "=================getEvents " + year + ", " + month + "===================");
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 int eventId = cursor.getInt(0);
-                String rule = cursor.getString(1);
+                long start_ts = cursor.getLong(1);
+                String rule = cursor.getString(2);
                 try {
-                    Log.e("-->", "====================================");
+
                     Log.e("-eventid->", eventId + "");
                     if (!TextUtils.isEmpty(rule)) {
                         Recur recur = new Recur(rule);
                         Log.e("-rrule->", recur.toString());
+
+                        DateList dates = recur.getDates(new Date(start_ts), monthPeriod, Value.DATE);
+                        for (Object o : dates) {
+                            Date date = (Date) o;
+                            Log.e("-发生日期->", date.toString());
+                        }
+
                     } else {
                         Log.e("-rrule->", "null");
+                        Log.e("-发生日期->", new Date(start_ts).toString());
                     }
 
                 } catch (ParseException e) {
@@ -247,8 +265,37 @@ public class ICalEventManager {
 
             cursor.close();
         }
-
         db.close();
+    }
+
+    private Period getMonthPeriod(int year, int month) {
+        java.util.Calendar calStart = java.util.Calendar.getInstance();
+        calStart.set(year, month-1, 1);
+
+        java.util.Calendar calEnd = java.util.Calendar.getInstance();
+        calEnd.set(year, month-1, getOneMonthDays(year, month));
+
+        DateTime dateTimeStart = new DateTime(calStart.getTime());
+        DateTime dateTimeEnd = new DateTime(calEnd.getTime());
+
+        return new Period(dateTimeStart, dateTimeEnd);
+    }
+
+    public int getOneMonthDays(int y, int m) {
+
+        if (m == 1 || m == 3 || m == 5 || m == 7 || m == 8 || m == 10
+                || m == 12) {
+            return 31;
+        } else if (m == 4 || m == 6 || m == 9 || m == 11) {
+            return 30;
+        } else {
+            if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) {
+                return 29;
+            } else {
+                return 28;
+            }
+        }
+
     }
 
     public void modifyICal(String icalData) {
@@ -267,7 +314,6 @@ public class ICalEventManager {
             description.setValue("修改内容");
             /**修改rrule*/
             RRule rRule = (RRule) vEvent.getProperty(Property.RRULE);
-            Recur recur = rRule.getRecur();
             rRule.setValue("FREQ=WEEKLY;BYDAY=1SU,2MO,3WE");
 
             Log.e("-->", "===Altered data===");
