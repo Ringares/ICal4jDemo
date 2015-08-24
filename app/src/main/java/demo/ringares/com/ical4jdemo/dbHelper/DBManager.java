@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 import demo.ringares.com.ical4jdemo.bean.EventDataBean;
 import demo.ringares.com.ical4jdemo.bean.LocationDataBean;
 import demo.ringares.com.ical4jdemo.bean.PersonDataBean;
@@ -225,10 +227,10 @@ public class DBManager {
                 TableName + " (" +
                 KEY_location_id + " integer primary key autoincrement, " +
                 KEY_location_event_id + " integer not null, " +
-                KEY_location_lat + " real not null," +
-                KEY_location_lon + " real not null," +
-                KEY_location_city + " text not null," +
-                KEY_location_country + " text not null," +
+                KEY_location_lat + " real," +
+                KEY_location_lon + " real," +
+                KEY_location_city + " text," +
+                KEY_location_country + " text," +
                 KEY_location_desc + " text not null," +
                 KEY_location_url + " text" +
                 ");";
@@ -264,15 +266,15 @@ public class DBManager {
                 KEY_person_event_id + " integer not null, " +
                 KEY_person_type + " integer not null," + //todo
                 KEY_person_display_name + " text not null," +
-                KEY_person_first_name + " text not null," +
-                KEY_person_last_name + " text not null," +
-                KEY_person_Email + " text not null," +
-                KEY_person_phone + " text not null," +
+                KEY_person_first_name + " text," +
+                KEY_person_last_name + " text," +
+                KEY_person_Email + " text," +
+                KEY_person_phone + " text," +
                 KEY_person_is_self + " integer not null," +
-                KEY_person_avatar_url + " text not null," +
-                KEY_person_role + " integer not null," +
-                KEY_person_revp_status + " integer not null," +
-                KEY_person_other_info + " text not null" +
+                KEY_person_avatar_url + " text," +
+                KEY_person_role + " integer," +
+                KEY_person_revp_status + " integer," +
+                KEY_person_other_info + " text" +
                 ");";
     }
 
@@ -403,7 +405,12 @@ public class DBManager {
      */
     public String getICalByEventId(int eventId) {
         String ICal = null;
-        Cursor cursor = mDb.query(Event.TableName, new String[]{Event.KEY_event_iCal}, Event.KEY_event_id + "=?", new String[]{eventId + ""}, null, null, null);
+        Cursor cursor = mDb.query(
+                Event.TableName,
+                new String[]{Event.KEY_event_iCal},
+                Event.KEY_event_id + "=?",
+                new String[]{eventId + ""},
+                null, null, null);
         if (cursor.moveToFirst()) {
             ICal = cursor.getString(cursor.getColumnIndex(Event.KEY_event_iCal));
         }
@@ -412,12 +419,202 @@ public class DBManager {
     }
 
     public int getEventIdByUuid(String uuid) {
-        Cursor cursor = mDb.query(Event.TableName, new String[]{Event.KEY_event_id}, Event.KEY_event_uuid + "=?", new String[]{uuid}, null, null, null);
+        Cursor cursor = mDb.query(
+                Event.TableName,
+                new String[]{Event.KEY_event_id},
+                Event.KEY_event_uuid + "=?",
+                new String[]{uuid},
+                null, null, null
+        );
         if (cursor.moveToFirst()) {
             int eventId = cursor.getInt(cursor.getColumnIndex(Event.KEY_event_id));
             return eventId;
         }
         return -1;
+    }
+
+    public Cursor getEventDataByEventId(int eventId) {
+        return mDb.query(
+                Event.TableName,
+                Event.columns,
+                Event.KEY_event_id + "=?",
+                new String[]{eventId + ""},
+                null, null, null
+        );
+    }
+
+    public Cursor getRecurranceDataByEventId(int eventId) {
+        return mDb.query(
+                Recurrence.TableName,
+                Recurrence.columns,
+                Recurrence.KEY_recurrence_event_id + "=?",
+                new String[]{eventId + ""},
+                null, null, null
+        );
+    }
+
+    public Cursor getLocationDataByEventId(int eventId) {
+        return mDb.query(
+                Location.TableName,
+                Location.columns,
+                Location.KEY_location_event_id + "=?",
+                new String[]{eventId + ""},
+                null, null, null
+        );
+    }
+
+    public Cursor getPersonDataByEventId(int eventId) {
+        return mDb.query(
+                Person.TableName,
+                Person.columns,
+                Person.KEY_person_event_id + "=?",
+                new String[]{eventId + ""},
+                null, null, null
+        );
+    }
+
+    public void deleteEventDataByEventId(int eventId) {
+        mDb.delete(
+                Event.TableName,
+                Event.KEY_event_id + "=?",
+                new String[]{eventId + ""}
+        );
+    }
+
+    public void deleteRecurrenceDataByEventId(int eventId) {
+        mDb.delete(
+                Recurrence.TableName,
+                Recurrence.KEY_recurrence_event_id + "=?",
+                new String[]{eventId + ""}
+        );
+    }
+
+    public void deleteLocationDataByEventId(int eventId) {
+        mDb.delete(
+                Location.TableName,
+                Location.KEY_location_event_id + "=?",
+                new String[]{eventId + ""}
+        );
+    }
+
+    public void deletePersonDataByEventId(int eventId) {
+        mDb.delete(
+                Person.TableName,
+                Person.KEY_person_event_id + "=?",
+                new String[]{eventId + ""}
+        );
+    }
+
+    public void updateEventData(EventDataBean bean) {
+        ContentValues cv = new ContentValues();
+        cv.put(Event.KEY_event_is_syn, bean.event_is_syn);
+        cv.put(Event.KEY_event_flag, bean.event_flag);
+        cv.put(Event.KEY_event_ts, bean.event_ts);
+        cv.put(Event.KEY_event_sid, bean.event_sid);
+        cv.put(Event.KEY_event_calendar_id, bean.event_calendar_id);
+        cv.put(Event.KEY_event_uuid, bean.event_uuid);
+        cv.put(Event.KEY_event_title, bean.event_title);
+        cv.put(Event.KEY_event_note, bean.event_note);
+        cv.put(Event.KEY_event_start_date, bean.event_start_date);
+        cv.put(Event.KEY_event_end_date, bean.event_end_date);
+        cv.put(Event.KEY_event_is_allday, bean.event_is_allday);
+        cv.put(Event.KEY_event_advance, bean.event_advance);
+        cv.put(Event.KEY_event_url, bean.event_url);
+        cv.put(Event.KEY_event_editable, bean.event_editable);
+        cv.put(Event.KEY_event_create_ts, bean.event_create_ts);
+        cv.put(Event.KEY_event_update_ts, bean.event_update_ts);
+        cv.put(Event.KEY_event_status, bean.event_status);
+        cv.put(Event.KEY_event_iCal, bean.event_iCal);
+
+        mDb.update(
+                Event.TableName,
+                cv,
+                Event.KEY_event_id + "=?",
+                new String[]{bean.event_id + ""}
+        );
+    }
+
+
+    public void updateRecurrenceData(RecurrenceDataBean bean, int eventId) {
+        ContentValues cv = new ContentValues();
+        cv.put(Recurrence.KEY_recurrence_frequency_type, bean.recurrence_frequency_type);
+        cv.put(Recurrence.KEY_recurrence_interval, bean.recurrence_interval);
+        cv.put(Recurrence.KEY_recurrence_end_type, bean.recurrence_end_type);
+        cv.put(Recurrence.KEY_recurrence_end_date, bean.recurrence_end_date);
+        cv.put(Recurrence.KEY_recurrence_end_count, bean.recurrence_end_count);
+        cv.put(Recurrence.KEY_recurrence_by_monthday, bean.recurrence_by_monthday);
+        cv.put(Recurrence.KEY_recurrence_by_month, bean.recurrence_by_month);
+        cv.put(Recurrence.KEY_recurrence_by_weekno, bean.recurrence_by_weekno);
+        cv.put(Recurrence.KEY_recurrence_by_yearday, bean.recurrence_by_yearday);
+        cv.put(Recurrence.KEY_recurrence_by_day, bean.recurrence_by_day);
+        cv.put(Recurrence.KEY_recurrence_positions, bean.recurrence_positions);
+        cv.put(Recurrence.KEY_recurrence_week_start, bean.recurrence_week_start);
+        cv.put(Recurrence.KEY_recurrence_start_date, bean.recurrence_start_date);
+        cv.put(Recurrence.KEY_recurrence_syear, bean.recurrence_syear);
+        cv.put(Recurrence.KEY_recurrence_smonth, bean.recurrence_smonth);
+        cv.put(Recurrence.KEY_recurrence_sday, bean.recurrence_sday);
+        cv.put(Recurrence.KEY_recurrence_rule, bean.recurrence_rule);
+
+        mDb.update(
+                Recurrence.TableName,
+                cv,
+                Recurrence.KEY_recurrence_event_id + "=?",
+                new String[]{eventId + ""}
+        );
+    }
+
+
+    public void updateLocationData(LocationDataBean bean, int eventId) {
+        ContentValues cv = new ContentValues();
+        cv.put(Location.KEY_location_lat, bean.location_lat);
+        cv.put(Location.KEY_location_lon, bean.location_lon);
+        cv.put(Location.KEY_location_city, bean.location_city);
+        cv.put(Location.KEY_location_country, bean.location_country);
+        cv.put(Location.KEY_location_desc, bean.location_desc);
+        cv.put(Location.KEY_location_url, bean.location_url);
+
+        int update = mDb.update(
+                Location.TableName,
+                cv,
+                Location.KEY_location_event_id + "=?",
+                new String[]{eventId + ""}
+        );
+
+        if (update == -1) {//若不存在更新的行,则进行insert
+            cv.put(Location.KEY_location_event_id, eventId);
+            mDb.insert(Location.TableName, null, cv);
+        }
+
+    }
+
+    public void updatePersonData(ArrayList<PersonDataBean> personDataBeans, int eventId) {
+        for (PersonDataBean bean : personDataBeans) {
+            ContentValues cv = new ContentValues();
+            cv.put(Person.KEY_person_type, bean.person_type);
+            cv.put(Person.KEY_person_display_name, bean.person_display_name);
+            cv.put(Person.KEY_person_first_name, bean.person_first_name);
+            cv.put(Person.KEY_person_last_name, bean.person_last_name);
+            cv.put(Person.KEY_person_Email, bean.person_Email);
+            cv.put(Person.KEY_person_phone, bean.person_phone);
+            cv.put(Person.KEY_person_is_self, bean.person_is_self);
+            cv.put(Person.KEY_person_avatar_url, bean.person_avatar_url);
+            cv.put(Person.KEY_person_role, bean.person_role);
+            cv.put(Person.KEY_person_revp_status, bean.person_revp_status);
+            cv.put(Person.KEY_person_other_info, bean.person_other_info);
+
+            int update = mDb.update(
+                    Person.TableName,
+                    cv,
+                    Person.KEY_person_event_id + "=? and " + Person.KEY_person_display_name + "=?", //todo 选择person的条件待定
+                    new String[]{eventId + "", bean.person_display_name}
+            );
+
+            if (update == -1) { //若不存在更新的行,则进行insert
+                cv.put(Person.KEY_person_event_id, eventId);
+                mDb.insert(Person.TableName, null, cv);
+            }
+        }
+
     }
 
 

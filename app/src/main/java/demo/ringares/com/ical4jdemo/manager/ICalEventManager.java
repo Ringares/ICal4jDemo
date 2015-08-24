@@ -34,6 +34,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 import demo.ringares.com.ical4jdemo.bean.EventDataBean;
+import demo.ringares.com.ical4jdemo.bean.LocationDataBean;
+import demo.ringares.com.ical4jdemo.bean.PersonDataBean;
 import demo.ringares.com.ical4jdemo.bean.RecurrenceDataBean;
 import demo.ringares.com.ical4jdemo.dbHelper.DBManager;
 import demo.ringares.com.ical4jdemo.synbean.SynTongBuBean;
@@ -159,12 +161,44 @@ public class ICalEventManager {
     }
 
     /**
+     * 同步事件到本地
+     * @param eventDataBean
+     * @return
+     */
+    public boolean syncEventInLocal(EventDataBean eventDataBean) {
+        DBManager db = DBManager.open(ctx);
+        boolean result = false;
+
+        int eventId = db.getEventIdByUuid(eventDataBean.event_uuid);
+        if (eventId == -1) { //新数据
+            result = insertEventInLocal(eventDataBean);
+        } else { //需要更新的数据
+            db.beginTransaction();
+            try {
+                db.updateEventData(eventDataBean);
+                db.updateRecurrenceData(eventDataBean.recurrenceDataBean, eventId);
+                db.updateLocationData(eventDataBean.locationDataBean, eventId);
+                db.updatePersonData(eventDataBean.personDataBeans, eventId);
+
+                db.setTransactionSuccessful();
+            } catch (Exception e) {
+                throw new RuntimeException("插入同步数据失败");
+            } finally {
+                db.endTransaction();
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * 添加事件到本地
      *
      * @return
      */
     public boolean insertEventInLocal(EventDataBean eventDataBean) {
         DBManager db = DBManager.open(ctx);
+        boolean result = false;
         /**事务操作*/
         db.beginTransaction();
         try {
@@ -191,22 +225,21 @@ public class ICalEventManager {
 
             /**插入Location表*/
 
-
+            result = true;
             db.setTransactionSuccessful();
         } catch (Exception e) {
+            result = false;
+            throw new RuntimeException("插入数据失败,回滚数据");
+        } finally {
             db.endTransaction();
-            throw e;
         }
-        db.endTransaction();
-        db.close();
-
-
-        return false;
+        return result;
     }
 
     /**
      * 修改事件在本地
      *
+     * @param eventDataBean
      * @return
      */
     public boolean updateEventInLocal(EventDataBean eventDataBean) {
@@ -217,11 +250,29 @@ public class ICalEventManager {
     /**
      * 删除事件在本地
      *
+     * @param eventId
      * @return
      */
-    public boolean deleteEventInLocal() {
+    public boolean deleteEventInLocal(int eventId) {
+        DBManager db = DBManager.open(ctx);
+        boolean result = false;
+        db.beginTransaction();
+        try {
+            db.deleteEventDataByEventId(eventId);
+            db.deleteRecurrenceDataByEventId(eventId);
+            db.deleteLocationDataByEventId(eventId);
+            db.deletePersonDataByEventId(eventId);
 
-        return false;
+            result = true;
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            result = false;
+            throw new RuntimeException("删除数据失败,回滚数据");
+        } finally {
+            db.endTransaction();
+        }
+
+        return result;
     }
 
     /**
@@ -268,12 +319,114 @@ public class ICalEventManager {
         db.close();
     }
 
+    /**
+     * 根据eventId获取完整EventDataBean
+     *
+     * @param eventId
+     * @return
+     */
+    public EventDataBean getEventDataBeanByEventId(int eventId) {
+        EventDataBean eventDataBean = new EventDataBean();
+        DBManager db = DBManager.open(ctx);
+        Cursor cursor = db.getEventDataByEventId(eventId);
+        if (cursor != null) {
+            while (cursor.moveToFirst()) {
+                eventDataBean.event_id = cursor.getInt(0);
+                eventDataBean.event_is_syn = cursor.getInt(1);
+                eventDataBean.event_flag = cursor.getInt(2);
+                eventDataBean.event_ts = cursor.getLong(3);
+                eventDataBean.event_sid = cursor.getLong(4);
+                eventDataBean.event_calendar_id = cursor.getInt(5);
+                eventDataBean.event_uuid = cursor.getString(6);
+                eventDataBean.event_title = cursor.getString(7);
+                eventDataBean.event_note = cursor.getString(8);
+                eventDataBean.event_start_date = cursor.getLong(9);
+                eventDataBean.event_end_date = cursor.getLong(10);
+                eventDataBean.event_is_allday = cursor.getInt(11);
+                eventDataBean.event_advance = cursor.getString(12);
+                eventDataBean.event_url = cursor.getString(13);
+                eventDataBean.event_editable = cursor.getInt(14);
+                eventDataBean.event_create_ts = cursor.getLong(15);
+                eventDataBean.event_update_ts = cursor.getLong(16);
+                eventDataBean.event_status = cursor.getInt(17);
+                eventDataBean.event_iCal = cursor.getString(18);
+            }
+
+            //根据event_id查recurrence, location, person表
+            Cursor cursor_currence = db.getRecurranceDataByEventId(eventId);
+            if (cursor_currence != null && cursor.moveToFirst()) {
+                RecurrenceDataBean recurrenceDataBean = new RecurrenceDataBean();
+                recurrenceDataBean.recurrence_id = cursor_currence.getInt(0);
+                recurrenceDataBean.recurrence_event_id = cursor_currence.getInt(1);
+                recurrenceDataBean.recurrence_frequency_type = cursor_currence.getInt(2);
+                recurrenceDataBean.recurrence_interval = cursor_currence.getInt(3);
+                recurrenceDataBean.recurrence_end_type = cursor_currence.getInt(4);
+                recurrenceDataBean.recurrence_end_date = cursor_currence.getLong(5);
+                recurrenceDataBean.recurrence_end_count = cursor_currence.getInt(6);
+                recurrenceDataBean.recurrence_by_monthday = cursor_currence.getString(7);
+                recurrenceDataBean.recurrence_by_month = cursor_currence.getString(8);
+                recurrenceDataBean.recurrence_by_weekno = cursor_currence.getString(9);
+                recurrenceDataBean.recurrence_by_yearday = cursor_currence.getString(10);
+                recurrenceDataBean.recurrence_by_day = cursor_currence.getString(11);
+                recurrenceDataBean.recurrence_positions = cursor_currence.getString(12);
+                recurrenceDataBean.recurrence_week_start = cursor_currence.getInt(13);
+                recurrenceDataBean.recurrence_start_date = cursor_currence.getLong(14);
+                recurrenceDataBean.recurrence_syear = cursor_currence.getInt(15);
+                recurrenceDataBean.recurrence_smonth = cursor_currence.getInt(16);
+                recurrenceDataBean.recurrence_sday = cursor_currence.getInt(17);
+                recurrenceDataBean.recurrence_rule = cursor_currence.getString(18);
+                eventDataBean.recurrenceDataBean = recurrenceDataBean;
+            }
+
+            Cursor cursor_location = db.getLocationDataByEventId(eventId);
+            if (cursor_location != null && cursor_location.moveToFirst()) {
+                LocationDataBean locationDataBean = new LocationDataBean();
+                locationDataBean.location_id = cursor_location.getInt(0);
+                locationDataBean.location_event_id = cursor_location.getInt(1);
+                locationDataBean.location_lat = cursor_location.getFloat(2);
+                locationDataBean.location_lon = cursor_location.getFloat(3);
+                locationDataBean.location_city = cursor_location.getString(4);
+                locationDataBean.location_country = cursor_location.getString(5);
+                locationDataBean.location_desc = cursor_location.getString(6);
+                locationDataBean.location_url = cursor_location.getString(7);
+                eventDataBean.locationDataBean = locationDataBean;
+            }
+
+            Cursor cursor_person = db.getPersonDataByEventId(eventId);
+            if (cursor != null) {
+                while (cursor_person.moveToFirst()) {
+                    PersonDataBean personDataBean = new PersonDataBean();
+                    personDataBean.person_id = cursor_person.getInt(0);
+                    personDataBean.person_event_id = cursor_person.getInt(1);
+                    personDataBean.person_type = cursor_person.getInt(2);
+                    personDataBean.person_display_name = cursor_person.getString(3);
+                    personDataBean.person_first_name = cursor_person.getString(4);
+                    personDataBean.person_last_name = cursor_person.getString(5);
+                    personDataBean.person_Email = cursor_person.getString(6);
+                    personDataBean.person_phone = cursor_person.getString(7);
+                    personDataBean.person_is_self = cursor_person.getInt(8);
+                    personDataBean.person_avatar_url = cursor_person.getString(9);
+                    personDataBean.person_role = cursor_person.getInt(10);
+                    personDataBean.person_revp_status = cursor_person.getInt(11);
+                    personDataBean.person_other_info = cursor_person.getString(12);
+
+                    if (eventDataBean.personDataBeans == null) {
+                        eventDataBean.personDataBeans = new ArrayList<>();
+                    }
+                    eventDataBean.personDataBeans.add(personDataBean);
+                }
+            }
+        }
+
+        return eventDataBean;
+    }
+
     private Period getMonthPeriod(int year, int month) {
         java.util.Calendar calStart = java.util.Calendar.getInstance();
-        calStart.set(year, month-1, 1);
+        calStart.set(year, month - 1, 1);
 
         java.util.Calendar calEnd = java.util.Calendar.getInstance();
-        calEnd.set(year, month-1, getOneMonthDays(year, month));
+        calEnd.set(year, month - 1, getOneMonthDays(year, month));
 
         DateTime dateTimeStart = new DateTime(calStart.getTime());
         DateTime dateTimeEnd = new DateTime(calEnd.getTime());

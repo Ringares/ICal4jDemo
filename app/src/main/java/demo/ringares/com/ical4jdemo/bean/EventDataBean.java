@@ -23,7 +23,7 @@ public class EventDataBean {
     public static final int EVENT_STATUS_CANCELLED = 3;
 
 
-    public String event_id;//主键 本地id
+    public int event_id;//主键 本地id
     public int event_is_syn;// 是否需要同步
     public int event_flag;// 数据操作类型 5:add,6:edit,7:delete
     public long event_ts;// 同步的时间戳 服务器返回的
@@ -73,7 +73,7 @@ public class EventDataBean {
     }
 
     public void setEventId(int eventId) {
-        this.event_id = event_advance;
+        this.event_id = eventId;
         if (recurrenceDataBean != null) {
             recurrenceDataBean.recurrence_event_id = eventId;
         }
