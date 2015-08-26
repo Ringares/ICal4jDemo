@@ -12,26 +12,43 @@ import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.NumberList;
 import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.Recur;
+import net.fortuna.ical4j.model.TimeZone;
+import net.fortuna.ical4j.model.TimeZoneRegistry;
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
+import net.fortuna.ical4j.model.WeekDay;
+import net.fortuna.ical4j.model.WeekDayList;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.component.VTimeZone;
+import net.fortuna.ical4j.model.parameter.Cn;
+import net.fortuna.ical4j.model.parameter.Role;
 import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.Attendee;
+import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.Created;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.DtEnd;
 import net.fortuna.ical4j.model.property.DtStamp;
 import net.fortuna.ical4j.model.property.DtStart;
 import net.fortuna.ical4j.model.property.Location;
+import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Summary;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.model.property.Version;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.GregorianCalendar;
+import java.util.UUID;
 
 import demo.ringares.com.ical4jdemo.bean.EventDataBean;
 import demo.ringares.com.ical4jdemo.bean.LocationDataBean;
@@ -162,6 +179,7 @@ public class ICalEventManager {
 
     /**
      * 同步事件到本地
+     *
      * @param eventDataBean
      * @return
      */
@@ -180,8 +198,10 @@ public class ICalEventManager {
                 db.updateLocationData(eventDataBean.locationDataBean, eventId);
                 db.updatePersonData(eventDataBean.personDataBeans, eventId);
 
+                result = true;
                 db.setTransactionSuccessful();
             } catch (Exception e) {
+                result = false;
                 throw new RuntimeException("插入同步数据失败");
             } finally {
                 db.endTransaction();
@@ -221,9 +241,18 @@ public class ICalEventManager {
             Log.e("-->", "插入Recurrence表 数据:" + eventDataBean.recurrenceDataBean.toString());
             Log.e("-->", "插入Recurrence表 返回位置:" + pos);
 
-            /**插入Person表*/
-
             /**插入Location表*/
+            if (eventDataBean.locationDataBean!= null){
+                db.insertDataIntoLocation(eventDataBean.locationDataBean);
+            }
+
+            /**插入Person表*/
+            if (eventDataBean.personDataBeans!=null && eventDataBean.personDataBeans.size()>0){
+                for (PersonDataBean personBean : eventDataBean.personDataBeans) {
+                    db.insertDataIntoPerson(personBean);
+                }
+            }
+
 
             result = true;
             db.setTransactionSuccessful();
@@ -329,96 +358,292 @@ public class ICalEventManager {
         EventDataBean eventDataBean = new EventDataBean();
         DBManager db = DBManager.open(ctx);
         Cursor cursor = db.getEventDataByEventId(eventId);
-        if (cursor != null) {
-            while (cursor.moveToFirst()) {
-                eventDataBean.event_id = cursor.getInt(0);
-                eventDataBean.event_is_syn = cursor.getInt(1);
-                eventDataBean.event_flag = cursor.getInt(2);
-                eventDataBean.event_ts = cursor.getLong(3);
-                eventDataBean.event_sid = cursor.getLong(4);
-                eventDataBean.event_calendar_id = cursor.getInt(5);
-                eventDataBean.event_uuid = cursor.getString(6);
-                eventDataBean.event_title = cursor.getString(7);
-                eventDataBean.event_note = cursor.getString(8);
-                eventDataBean.event_start_date = cursor.getLong(9);
-                eventDataBean.event_end_date = cursor.getLong(10);
-                eventDataBean.event_is_allday = cursor.getInt(11);
-                eventDataBean.event_advance = cursor.getString(12);
-                eventDataBean.event_url = cursor.getString(13);
-                eventDataBean.event_editable = cursor.getInt(14);
-                eventDataBean.event_create_ts = cursor.getLong(15);
-                eventDataBean.event_update_ts = cursor.getLong(16);
-                eventDataBean.event_status = cursor.getInt(17);
-                eventDataBean.event_iCal = cursor.getString(18);
-            }
+        if (cursor != null && cursor.moveToFirst()) {
+            eventDataBean.event_id = cursor.getInt(0);
+            eventDataBean.event_is_syn = cursor.getInt(1);
+            eventDataBean.event_flag = cursor.getInt(2);
+            eventDataBean.event_ts = cursor.getLong(3);
+            eventDataBean.event_sid = cursor.getLong(4);
+            eventDataBean.event_calendar_id = cursor.getInt(5);
+            eventDataBean.event_uuid = cursor.getString(6);
+            eventDataBean.event_title = cursor.getString(7);
+            eventDataBean.event_note = cursor.getString(8);
+            eventDataBean.event_start_date = cursor.getLong(9);
+            eventDataBean.event_end_date = cursor.getLong(10);
+            eventDataBean.event_is_allday = cursor.getInt(11);
+            eventDataBean.event_advance = cursor.getString(12);
+            eventDataBean.event_url = cursor.getString(13);
+            eventDataBean.event_editable = cursor.getInt(14);
+            eventDataBean.event_create_ts = cursor.getLong(15);
+            eventDataBean.event_update_ts = cursor.getLong(16);
+            eventDataBean.event_status = cursor.getInt(17);
+            eventDataBean.event_iCal = cursor.getString(18);
+            cursor.close();
+        } else {
+            return null;
+        }
 
-            //根据event_id查recurrence, location, person表
-            Cursor cursor_currence = db.getRecurranceDataByEventId(eventId);
-            if (cursor_currence != null && cursor.moveToFirst()) {
-                RecurrenceDataBean recurrenceDataBean = new RecurrenceDataBean();
-                recurrenceDataBean.recurrence_id = cursor_currence.getInt(0);
-                recurrenceDataBean.recurrence_event_id = cursor_currence.getInt(1);
-                recurrenceDataBean.recurrence_frequency_type = cursor_currence.getInt(2);
-                recurrenceDataBean.recurrence_interval = cursor_currence.getInt(3);
-                recurrenceDataBean.recurrence_end_type = cursor_currence.getInt(4);
-                recurrenceDataBean.recurrence_end_date = cursor_currence.getLong(5);
-                recurrenceDataBean.recurrence_end_count = cursor_currence.getInt(6);
-                recurrenceDataBean.recurrence_by_monthday = cursor_currence.getString(7);
-                recurrenceDataBean.recurrence_by_month = cursor_currence.getString(8);
-                recurrenceDataBean.recurrence_by_weekno = cursor_currence.getString(9);
-                recurrenceDataBean.recurrence_by_yearday = cursor_currence.getString(10);
-                recurrenceDataBean.recurrence_by_day = cursor_currence.getString(11);
-                recurrenceDataBean.recurrence_positions = cursor_currence.getString(12);
-                recurrenceDataBean.recurrence_week_start = cursor_currence.getInt(13);
-                recurrenceDataBean.recurrence_start_date = cursor_currence.getLong(14);
-                recurrenceDataBean.recurrence_syear = cursor_currence.getInt(15);
-                recurrenceDataBean.recurrence_smonth = cursor_currence.getInt(16);
-                recurrenceDataBean.recurrence_sday = cursor_currence.getInt(17);
-                recurrenceDataBean.recurrence_rule = cursor_currence.getString(18);
-                eventDataBean.recurrenceDataBean = recurrenceDataBean;
-            }
+        //根据event_id查recurrence, location, person表
+        Cursor cursor_currence = db.getRecurranceDataByEventId(eventId);
+        if (cursor_currence != null && cursor_currence.moveToFirst()) {
+            RecurrenceDataBean recurrenceDataBean = new RecurrenceDataBean();
+            recurrenceDataBean.recurrence_id = cursor_currence.getInt(0);
+            recurrenceDataBean.recurrence_event_id = cursor_currence.getInt(1);
+            recurrenceDataBean.recurrence_frequency_type = cursor_currence.getInt(2);
+            recurrenceDataBean.recurrence_interval = cursor_currence.getInt(3);
+            recurrenceDataBean.recurrence_end_type = cursor_currence.getInt(4);
+            recurrenceDataBean.recurrence_end_date = cursor_currence.getLong(5);
+            recurrenceDataBean.recurrence_end_count = cursor_currence.getInt(6);
+            recurrenceDataBean.recurrence_by_monthday = cursor_currence.getString(7);
+            recurrenceDataBean.recurrence_by_month = cursor_currence.getString(8);
+            recurrenceDataBean.recurrence_by_weekno = cursor_currence.getString(9);
+            recurrenceDataBean.recurrence_by_yearday = cursor_currence.getString(10);
+            recurrenceDataBean.recurrence_by_day = cursor_currence.getString(11);
+            recurrenceDataBean.recurrence_positions = cursor_currence.getString(12);
+            recurrenceDataBean.recurrence_week_start = cursor_currence.getInt(13);
+            recurrenceDataBean.recurrence_start_date = cursor_currence.getLong(14);
+            recurrenceDataBean.recurrence_syear = cursor_currence.getInt(15);
+            recurrenceDataBean.recurrence_smonth = cursor_currence.getInt(16);
+            recurrenceDataBean.recurrence_sday = cursor_currence.getInt(17);
+            recurrenceDataBean.recurrence_rule = cursor_currence.getString(18);
+            eventDataBean.recurrenceDataBean = recurrenceDataBean;
+            cursor_currence.close();
+        }
 
-            Cursor cursor_location = db.getLocationDataByEventId(eventId);
-            if (cursor_location != null && cursor_location.moveToFirst()) {
-                LocationDataBean locationDataBean = new LocationDataBean();
-                locationDataBean.location_id = cursor_location.getInt(0);
-                locationDataBean.location_event_id = cursor_location.getInt(1);
-                locationDataBean.location_lat = cursor_location.getFloat(2);
-                locationDataBean.location_lon = cursor_location.getFloat(3);
-                locationDataBean.location_city = cursor_location.getString(4);
-                locationDataBean.location_country = cursor_location.getString(5);
-                locationDataBean.location_desc = cursor_location.getString(6);
-                locationDataBean.location_url = cursor_location.getString(7);
-                eventDataBean.locationDataBean = locationDataBean;
-            }
+        Cursor cursor_location = db.getLocationDataByEventId(eventId);
+        if (cursor_location != null && cursor_location.moveToFirst()) {
+            LocationDataBean locationDataBean = new LocationDataBean();
+            locationDataBean.location_id = cursor_location.getInt(0);
+            locationDataBean.location_event_id = cursor_location.getInt(1);
+            locationDataBean.location_lat = cursor_location.getFloat(2);
+            locationDataBean.location_lon = cursor_location.getFloat(3);
+            locationDataBean.location_city = cursor_location.getString(4);
+            locationDataBean.location_country = cursor_location.getString(5);
+            locationDataBean.location_desc = cursor_location.getString(6);
+            locationDataBean.location_url = cursor_location.getString(7);
+            eventDataBean.locationDataBean = locationDataBean;
+            cursor_location.close();
+        }
 
-            Cursor cursor_person = db.getPersonDataByEventId(eventId);
-            if (cursor != null) {
-                while (cursor_person.moveToFirst()) {
-                    PersonDataBean personDataBean = new PersonDataBean();
-                    personDataBean.person_id = cursor_person.getInt(0);
-                    personDataBean.person_event_id = cursor_person.getInt(1);
-                    personDataBean.person_type = cursor_person.getInt(2);
-                    personDataBean.person_display_name = cursor_person.getString(3);
-                    personDataBean.person_first_name = cursor_person.getString(4);
-                    personDataBean.person_last_name = cursor_person.getString(5);
-                    personDataBean.person_Email = cursor_person.getString(6);
-                    personDataBean.person_phone = cursor_person.getString(7);
-                    personDataBean.person_is_self = cursor_person.getInt(8);
-                    personDataBean.person_avatar_url = cursor_person.getString(9);
-                    personDataBean.person_role = cursor_person.getInt(10);
-                    personDataBean.person_revp_status = cursor_person.getInt(11);
-                    personDataBean.person_other_info = cursor_person.getString(12);
+        Cursor cursor_person = db.getPersonDataByEventId(eventId);
+        if (cursor_person != null) {
+            while (cursor_person.moveToNext()) {
+                PersonDataBean personDataBean = new PersonDataBean();
+                personDataBean.person_id = cursor_person.getInt(0);
+                personDataBean.person_event_id = cursor_person.getInt(1);
+                personDataBean.person_type = cursor_person.getInt(2);
+                personDataBean.person_display_name = cursor_person.getString(3);
+                personDataBean.person_first_name = cursor_person.getString(4);
+                personDataBean.person_last_name = cursor_person.getString(5);
+                personDataBean.person_Email = cursor_person.getString(6);
+                personDataBean.person_phone = cursor_person.getString(7);
+                personDataBean.person_is_self = cursor_person.getInt(8);
+                personDataBean.person_avatar_url = cursor_person.getString(9);
+                personDataBean.person_role = cursor_person.getInt(10);
+                personDataBean.person_revp_status = cursor_person.getInt(11);
+                personDataBean.person_other_info = cursor_person.getString(12);
 
-                    if (eventDataBean.personDataBeans == null) {
-                        eventDataBean.personDataBeans = new ArrayList<>();
-                    }
-                    eventDataBean.personDataBeans.add(personDataBean);
+                if (eventDataBean.personDataBeans == null) {
+                    eventDataBean.personDataBeans = new ArrayList<>();
                 }
+                eventDataBean.personDataBeans.add(personDataBean);
+            }
+            cursor_person.close();
+        }
+
+
+        return eventDataBean;
+    }
+
+    public String generateRRuleString(RecurrenceDataBean recurrenceDataBean) {
+        if (recurrenceDataBean == null) {
+            return null;
+        }
+        /** 创建时区*/
+//        TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+//        TimeZone timeZone = registry.getTimeZone("Etc/GMT");
+//        VTimeZone vTimeZone = timeZone.getVTimeZone();
+
+        /**设置FREQ和endType*/
+        Recur recur = null;
+        String frequencyType = null;
+        switch (recurrenceDataBean.recurrence_frequency_type) {
+            case RecurrenceDataBean.FREQ_YEARLY:
+                frequencyType = Recur.YEARLY;
+                break;
+            case RecurrenceDataBean.FREQ_MONTHLY:
+                frequencyType = Recur.MONTHLY;
+                break;
+            case RecurrenceDataBean.FREQ_WEEKLY:
+                frequencyType = Recur.WEEKLY;
+                break;
+            case RecurrenceDataBean.FREQ_DAILY:
+                frequencyType = Recur.DAILY;
+                break;
+            case RecurrenceDataBean.FREQ_NONE:
+            default:
+                frequencyType = null;
+                break;
+        }
+        if (frequencyType == null) {
+            //没有重复规则
+            return null;
+        } else {
+            switch (recurrenceDataBean.recurrence_end_type) {
+                case RecurrenceDataBean.END_TYPE_COUNT:
+                    recur = new Recur(frequencyType, recurrenceDataBean.recurrence_end_count);
+                    break;
+                case RecurrenceDataBean.END_TYPE_UNTIL:
+                    java.util.Calendar untilDate = new GregorianCalendar();
+                    //untilDate.setTimeZone(timeZone);
+                    untilDate.setTimeInMillis(recurrenceDataBean.recurrence_end_date);
+                    recur = new Recur(frequencyType, new Date(untilDate.getTime()));
+                    break;
+                case RecurrenceDataBean.END_TYPE_NONE:
+                default:
+                    recur = new Recur();
+                    recur.setFrequency(frequencyType);
+                    break;
             }
         }
 
-        return eventDataBean;
+        /**设置interval*/
+        if (recurrenceDataBean.recurrence_interval > 1) {
+            recur.setInterval(recurrenceDataBean.recurrence_interval);
+        }
+
+        /**设置by_month_day 一个月中的哪几天*/
+        if (!TextUtils.isEmpty(recurrenceDataBean.recurrence_by_monthday)) {
+            NumberList monthDayList = recur.getMonthDayList();
+            String[] split = recurrenceDataBean.recurrence_by_monthday.split(",");
+            Collections.addAll(monthDayList, split);
+        }
+        /**设置by_month 一年中的哪几个月 1~12*/
+        if (!TextUtils.isEmpty(recurrenceDataBean.recurrence_by_month)) {
+            NumberList monthList = recur.getMonthList();
+            String[] split = recurrenceDataBean.recurrence_by_month.split(",");
+            Collections.addAll(monthList, split);
+        }
+        /**设置by_weekno 一年中的哪几周*/
+        if (!TextUtils.isEmpty(recurrenceDataBean.recurrence_by_weekno)) {
+            NumberList weekNoList = recur.getWeekNoList();
+            String[] split = recurrenceDataBean.recurrence_by_weekno.split(",");
+            Collections.addAll(weekNoList, split);
+        }
+        /**设置by_year_day 一年中的哪几天*/
+        if (!TextUtils.isEmpty(recurrenceDataBean.recurrence_by_month)) {
+            NumberList yearDayList = recur.getYearDayList();
+            String[] split = recurrenceDataBean.recurrence_by_yearday.split(",");
+            Collections.addAll(yearDayList, split);
+        }
+        /**设置by_day 一周中的哪几天*/
+        if (!TextUtils.isEmpty(recurrenceDataBean.recurrence_by_day)) {
+            WeekDayList dayList = recur.getDayList();
+            String[] split = recurrenceDataBean.recurrence_by_day.split(",");
+            for (String temp : split) {
+                int integer = Integer.parseInt(temp);
+                int offset = (integer < 0) ? -1 : 1;
+                int day = Math.abs(integer) % 8;
+                offset = offset * Math.abs(integer) / 8;
+
+                String weekDay = RecurrenceDataBean.convertInt2WeekDayString(day);
+                if (!TextUtils.isEmpty(weekDay)) {
+                    dayList.add(new WeekDay(new WeekDay(weekDay), offset));
+                }
+            }
+        }
+        /**设置positions 位置集合*/
+        if (!TextUtils.isEmpty(recurrenceDataBean.recurrence_positions)) {
+            // TODO: 15/8/25
+        }
+        /**设置week_start_date*/
+        if (recurrenceDataBean.recurrence_week_start > 0) {
+            String weekDayString = RecurrenceDataBean.convertInt2WeekDayString(recurrenceDataBean.recurrence_week_start);
+            if (!TextUtils.isEmpty(weekDayString)) {
+                recur.setWeekStartDay(weekDayString);
+            }
+        }
+        RRule rule = new RRule(recur);
+        return rule.getValue();
+    }
+
+    /**
+     * 生成ICal串
+     *
+     * @param eventDataBean
+     * @return
+     */
+    public String generateICalString(EventDataBean eventDataBean) throws ParseException {
+        if (eventDataBean == null) {
+            return null;
+        }
+        net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
+        calendar.getProperties().add(new ProdId("-//etouch Inc//WeCal//EN"));
+        calendar.getProperties().add(Version.VERSION_2_0);
+        calendar.getProperties().add(CalScale.GREGORIAN);
+
+//        /** 创建时区*/
+//        TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+//        TimeZone timeZone = registry.getTimeZone("Etc/GMT");
+//        VTimeZone vTimeZone = timeZone.getVTimeZone();
+
+        /** 开始拼装event*/
+        VEvent event = null;
+        //设置起始时间
+        java.util.Calendar startDate = new GregorianCalendar();
+        //startDate.setTimeZone(timeZone);
+        startDate.setTimeInMillis(eventDataBean.event_start_date);
+
+        if (eventDataBean.event_is_allday == 1 || eventDataBean.event_end_date == 0) {// TODO: 15/8/24
+            //是全天event
+            event = new VEvent(new Date(startDate.getTime()), eventDataBean.event_title);
+        } else {
+            //不是全天event
+            //设置结束时间
+            java.util.Calendar endDate = new GregorianCalendar();
+            //endDate.setTimeZone(timeZone);
+            endDate.setTimeInMillis(eventDataBean.event_end_date);
+
+            event = new VEvent(new Date(startDate.getTime()), new Date(endDate.getTime()), eventDataBean.event_title);
+        }
+
+        //事件描述
+        event.getProperties().add(new Description(eventDataBean.event_note));
+        //添加时区信息
+        //event.getProperties().add(vTimeZone.getTimeZoneId());
+        //生成唯一标示符UID
+        if (TextUtils.isEmpty(eventDataBean.event_uuid)) {
+            String uid_string = UUID.randomUUID().toString();
+            eventDataBean.event_uuid = uid_string.replace("-", "");
+        }
+        event.getProperties().add(new Uid(eventDataBean.event_uuid));
+
+        //添加RRule/
+        if (eventDataBean.recurrenceDataBean.recurrence_rule != null) {
+            RRule rRule = new RRule(new Recur(eventDataBean.recurrenceDataBean.recurrence_rule));
+            event.getProperties().add(rRule);
+        }
+
+        if (eventDataBean.locationDataBean != null) {
+            //事件地址
+            event.getProperties().add(new Location(eventDataBean.locationDataBean.location_desc));
+        }
+        if (eventDataBean.personDataBeans != null && eventDataBean.personDataBeans.size() > 0) {
+            //添加参加者
+            for (PersonDataBean personDataBean : eventDataBean.personDataBeans) {
+                Attendee attendee = new Attendee();
+                if (!TextUtils.isEmpty(personDataBean.person_Email)) {
+                    attendee.setCalAddress(URI.create("mailto:" + personDataBean.person_Email));
+                }
+                //dev1.getParameters().add(Role.REQ_PARTICIPANT);
+                attendee.getParameters().add(new Cn(personDataBean.person_display_name));
+                event.getProperties().add(attendee);
+            }
+        }
+
+        /** 添加事件*/
+        calendar.getComponents().add(event);
+        return calendar.toString();
     }
 
     private Period getMonthPeriod(int year, int month) {

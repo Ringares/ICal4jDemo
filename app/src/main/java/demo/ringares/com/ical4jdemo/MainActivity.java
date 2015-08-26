@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 
@@ -195,6 +196,7 @@ public class MainActivity extends ActionBarActivity {
     final static String[] ICAL_DATAS = {ICAL_DATA0, ICAL_DATA1, ICAL_DATA2, ICAL_DATA3, ICAL_DATA4};
     private EditText et_year;
     private EditText et_month;
+    private EditText et_eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,6 +204,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         et_year = (EditText) findViewById(R.id.et_year);
         et_month = (EditText) findViewById(R.id.et_month);
+        et_eventId = (EditText) findViewById(R.id.et_eventId);
 
 
         /**测试
@@ -264,6 +267,24 @@ public class MainActivity extends ActionBarActivity {
             ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
             iCalEventManager.getEventsByMonth(year, month);
         }
+    }
+
+    public void parse(View view) {
+        String eventId = et_eventId.getText().toString();
+        ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
+        EventDataBean eventDataBean = iCalEventManager.getEventDataBeanByEventId(Integer.parseInt(eventId));
+        if (eventDataBean != null) {
+            Log.e("", "-------------------test parse------------------");
+            System.out.println(iCalEventManager.generateRRuleString(eventDataBean.recurrenceDataBean));
+            try {
+                System.out.println(iCalEventManager.generateICalString(eventDataBean));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Toast.makeText(this, "event is not exist", Toast.LENGTH_LONG).show();
+        }
+
     }
 
     private void updateCalendar() throws IOException, ParserException {

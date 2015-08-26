@@ -20,28 +20,28 @@ public class RecurrenceDataBean {
     /**
      * FREQ
      */
-    static final int FREQ_NONE = -1;
-    static final int FREQ_DAILY = 0;
-    static final int FREQ_WEEKLY = 1;
-    static final int FREQ_MONTHLY = 2;
-    static final int FREQ_YEARLY = 3;
+    public static final int FREQ_NONE = -1;
+    public static final int FREQ_DAILY = 0;
+    public static final int FREQ_WEEKLY = 1;
+    public static final int FREQ_MONTHLY = 2;
+    public static final int FREQ_YEARLY = 3;
     /**
      * ENDTYPE
      */
-    static final int END_TYPE_NONE = 0;
-    static final int END_TYPE_COUNT = 1;
-    static final int END_TYPE_UNTIL = 2;
+    public static final int END_TYPE_NONE = 0;
+    public static final int END_TYPE_COUNT = 1;
+    public static final int END_TYPE_UNTIL = 2;
     /**
      * WEEKSTARTDAY
      */
-    static final int WKST_NONE = 0;
-    static final int WKST_SUN = 1;
-    static final int WKST_MON = 2;
-    static final int WKST_TUE = 3;
-    static final int WKST_WED = 4;
-    static final int WKST_THU = 5;
-    static final int WKST_FRI = 6;
-    static final int WKST_SAT = 7;
+    public static final int WKST_NONE = 0;
+    public static final int WKST_SUN = 1;
+    public static final int WKST_MON = 2;
+    public static final int WKST_TUE = 3;
+    public static final int WKST_WED = 4;
+    public static final int WKST_THU = 5;
+    public static final int WKST_FRI = 6;
+    public static final int WKST_SAT = 7;
 
 
     private Recur recur;
@@ -237,6 +237,38 @@ public class RecurrenceDataBean {
         } else {
             return WKST_NONE;
         }
+    }
+
+    public static String convertInt2WeekDayString(int i) {
+        String weekDay = null;
+        switch (i) {
+            case WKST_MON:
+                weekDay = "MO";
+                break;
+            case WKST_TUE:
+                weekDay = "TU";
+                break;
+            case WKST_WED:
+                weekDay = "WE";
+                break;
+            case WKST_THU:
+                weekDay = "TH";
+                break;
+            case WKST_FRI:
+                weekDay = "FR";
+                break;
+            case WKST_SAT:
+                weekDay = "SA";
+                break;
+            case WKST_SUN:
+                weekDay = "SU";
+                break;
+            case WKST_NONE:
+            default:
+                break;
+        }
+
+        return weekDay;
     }
 
     @Override
