@@ -190,6 +190,8 @@ public class MainActivity extends ActionBarActivity {
             "DTSTART;VALUE=DATE:20051225\n" +
             "SUMMARY:Christmas Day\n" +
             "UID:20150723T092654Z-iCal4j@fe80::7651:baff:fe6f:3e83%wlan0\n" +
+            "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Developer 1:mailto:dev1@mycompany.com\n" +
+            "ATTENDEE;ROLE=OPT-PARTICIPANT;CN=Developer 2:mailto:dev2@mycompany.com\n" +
             "END:VEVENT\n" +
             "END:VCALENDAR";
 
@@ -241,8 +243,6 @@ public class MainActivity extends ActionBarActivity {
         /**修改测试*/
 //        ICalEventManager iCalEventManager = ICalEventManager.getInstance(this);
 //        iCalEventManager.modifyICal(ICAL_DATA0);
-
-
     }
 
     public void add(View view) {

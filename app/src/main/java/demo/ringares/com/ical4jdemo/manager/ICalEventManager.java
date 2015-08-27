@@ -13,8 +13,10 @@ import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.NumberList;
+import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
@@ -165,12 +167,25 @@ public class ICalEventManager {
              * LocationDataBean对象
              * ***********************************/
             Location location = vEvent.getLocation();
+            if (location != null) {
+                eventDataBean.locationDataBean = new LocationDataBean(location.getValue());
+            }
 
             /*************************************
              * PersonDataBean对象
              * ***********************************/
-            Attendee attendee = (Attendee) vEvent.getProperty(Property.ATTENDEE);
-
+            PropertyList properties = vEvent.getProperties(Property.ATTENDEE);
+            if (properties != null && properties.size() > 0) {
+                eventDataBean.personDataBeans = new ArrayList<>();
+                for (Object property : properties) {
+                    Attendee attendee = (Attendee) property;
+                    PersonDataBean personDataBean = new PersonDataBean();
+                    Parameter cn = attendee.getParameter(Parameter.CN);
+                    personDataBean.person_display_name = cn.getValue();
+                    personDataBean.person_Email = attendee.getCalAddress().toString().split(":")[1];
+                    eventDataBean.personDataBeans.add(personDataBean);
+                }
+            }
         } catch (IOException | ParserException e) {
             e.printStackTrace();
         }
@@ -242,12 +257,12 @@ public class ICalEventManager {
             Log.e("-->", "插入Recurrence表 返回位置:" + pos);
 
             /**插入Location表*/
-            if (eventDataBean.locationDataBean!= null){
+            if (eventDataBean.locationDataBean != null) {
                 db.insertDataIntoLocation(eventDataBean.locationDataBean);
             }
 
             /**插入Person表*/
-            if (eventDataBean.personDataBeans!=null && eventDataBean.personDataBeans.size()>0){
+            if (eventDataBean.personDataBeans != null && eventDataBean.personDataBeans.size() > 0) {
                 for (PersonDataBean personBean : eventDataBean.personDataBeans) {
                     db.insertDataIntoPerson(personBean);
                 }
@@ -587,24 +602,22 @@ public class ICalEventManager {
 //        TimeZone timeZone = registry.getTimeZone("Etc/GMT");
 //        VTimeZone vTimeZone = timeZone.getVTimeZone();
 
-        /** 开始拼装event*/
         VEvent event = null;
-        //设置起始时间
-        java.util.Calendar startDate = new GregorianCalendar();
-        //startDate.setTimeZone(timeZone);
-        startDate.setTimeInMillis(eventDataBean.event_start_date);
-
         if (eventDataBean.event_is_allday == 1 || eventDataBean.event_end_date == 0) {// TODO: 15/8/24
-            //是全天event
-            event = new VEvent(new Date(startDate.getTime()), eventDataBean.event_title);
+            //是全天event // TODO: 15/8/26 考虑全天的时区问题
+//            DateTime startTime = new DateTime(true);
+//            startTime.setTime(eventDataBean.event_start_date);
+
+            event = new VEvent(new Date(eventDataBean.event_start_date), eventDataBean.event_title);
         } else {
             //不是全天event
-            //设置结束时间
-            java.util.Calendar endDate = new GregorianCalendar();
-            //endDate.setTimeZone(timeZone);
-            endDate.setTimeInMillis(eventDataBean.event_end_date);
+            DateTime startTime = new DateTime(true);
+            startTime.setTime(eventDataBean.event_start_date);
 
-            event = new VEvent(new Date(startDate.getTime()), new Date(endDate.getTime()), eventDataBean.event_title);
+            DateTime endTime = new DateTime(true);
+            endTime.setTime(eventDataBean.event_end_date);
+
+            event = new VEvent(startTime, endTime, eventDataBean.event_title);
         }
 
         //事件描述
@@ -644,6 +657,155 @@ public class ICalEventManager {
         /** 添加事件*/
         calendar.getComponents().add(event);
         return calendar.toString();
+    }
+
+    /**
+     * 更新RRule串,RRule所有字段都可以控制,所以直接重新拼装
+     *
+     * @param recurrenceDataBean
+     */
+    private String updateRRuleString(RecurrenceDataBean recurrenceDataBean) {
+        String rrule = generateRRuleString(recurrenceDataBean);
+        return rrule;
+    }
+
+    /**
+     * @param eventDataBean
+     * @return
+     */
+    public boolean updateICalString(EventDataBean eventDataBean) {
+        //先更新rrule的串
+        String rRuleUpdated = updateRRuleString(eventDataBean.recurrenceDataBean);
+
+        try {
+            String oldICal = eventDataBean.event_iCal;
+            Calendar calendar = parseCalerdar(oldICal);
+            VEvent vEvent = (VEvent) calendar.getComponent(Component.VEVENT);
+            PropertyList properties = vEvent.getProperties();
+
+            //更新stamp
+            DateTime stampTime = new DateTime(true);
+            stampTime.setTime(System.currentTimeMillis());
+
+            DtStamp ical_dateStamp = vEvent.getDateStamp();
+            if (ical_dateStamp == null) {
+                ical_dateStamp = new DtStamp();
+                properties.add(ical_dateStamp);
+            }
+            ical_dateStamp.setDateTime(stampTime);
+
+            //更新开始结束时间
+            if (eventDataBean.event_is_allday == 1 || eventDataBean.event_end_date == 0) {
+                //全天event
+                DtStart ical_startDate = vEvent.getStartDate();
+                if (ical_startDate == null) {
+                    ical_startDate = new DtStart();
+                    properties.add(ical_startDate);
+                }
+                Date start = new Date(eventDataBean.event_start_date);
+                ical_startDate.setDate(start);
+
+                //删除结束时间
+                Property end = properties.getProperty(Property.DTEND);
+                properties.remove(end);
+            } else {
+                DtStart ical_startDate = vEvent.getStartDate();
+                DtEnd ical_endDate = vEvent.getEndDate();
+
+                if (ical_startDate == null) {
+                    ical_startDate = new DtStart();
+                    properties.add(ical_startDate);
+                }
+                if (ical_endDate == null) {
+                    ical_endDate = new DtEnd();
+                    properties.add(ical_endDate);
+                }
+
+                DateTime startTime = new DateTime(true);
+                startTime.setTime(eventDataBean.event_start_date);
+
+                DateTime endTime = new DateTime(true);
+                endTime.setTime(eventDataBean.event_end_date);
+
+                ical_startDate.setDate(startTime);
+                ical_endDate.setDate(endTime);
+            }
+
+            //更新标题,内容
+            Summary ical_summary = vEvent.getSummary();
+            if (ical_summary == null) {
+                ical_summary = new Summary();
+                properties.add(ical_summary);
+            }
+            if (!TextUtils.isEmpty(eventDataBean.event_title)) {
+                ical_summary.setValue(eventDataBean.event_title);
+            } else {
+                properties.remove(Property.SUMMARY);
+            }
+
+            Description ical_description = vEvent.getDescription();
+            if (ical_description == null) {
+                ical_description = new Description();
+                properties.add(ical_description);
+            }
+            if (!TextUtils.isEmpty(eventDataBean.event_note)) {
+                ical_description.setValue(eventDataBean.event_note);
+            } else {
+                properties.remove(Property.DESCRIPTION);
+            }
+
+            //更新rrule
+            RRule ical_rRule = (RRule) vEvent.getProperty(Property.RRULE);
+            if (ical_rRule == null) {
+                ical_rRule = new RRule();
+                properties.add(ical_rRule);
+            }
+            if (!TextUtils.isEmpty(rRuleUpdated)) {
+                ical_rRule.setValue(rRuleUpdated);
+            } else {
+                properties.remove(ical_rRule);
+            }
+
+            //更新location
+            Location ical_location = vEvent.getLocation();
+            if (ical_location == null) {
+                ical_location = new Location();
+                properties.add(ical_location);
+            }
+            if (eventDataBean.locationDataBean != null) {
+                ical_location.setValue(eventDataBean.locationDataBean.location_desc);
+            } else {
+                properties.remove(ical_location);
+            }
+
+            //更新person,删除重新添加 // TODO: 15/8/26  
+            PropertyList propertyList = properties.getProperties(Property.ATTENDEE);
+            for (Object property : propertyList) {
+                properties.remove(property);
+            }
+
+            if (eventDataBean.personDataBeans != null && eventDataBean.personDataBeans.size() > 0) {
+                //添加参加者
+                for (PersonDataBean personDataBean : eventDataBean.personDataBeans) {
+                    Attendee attendee = new Attendee();
+                    if (!TextUtils.isEmpty(personDataBean.person_Email)) {
+                        attendee.setCalAddress(URI.create("mailto:" + personDataBean.person_Email));
+                    }
+                    //dev1.getParameters().add(Role.REQ_PARTICIPANT);
+                    attendee.getParameters().add(new Cn(personDataBean.person_display_name));
+                    properties.add(attendee);
+                }
+            }
+
+        } catch (IOException | ParserException e) {
+            e.printStackTrace();
+            return false;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+
     }
 
     private Period getMonthPeriod(int year, int month) {

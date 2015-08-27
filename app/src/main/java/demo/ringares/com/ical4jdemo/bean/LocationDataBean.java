@@ -15,4 +15,10 @@ public class LocationDataBean {
     public String location_desc;// 地址整体详细描述
     public String location_url;// 地址的url
 
+    public LocationDataBean() {
+    }
+
+    public LocationDataBean(String location_desc) {
+        this.location_desc = location_desc;
+    }
 }
